@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <title>Brazil Sensi Legends — Checkout</title>
+    <meta name="description" content="Full access to classes and personalized sensitivity generator for Free Fire.">
+    <link rel="icon" href="assets/images/yrrabLBv0i13BdICerAzJbPj6Y.png">
+    <link rel="stylesheet" href="https://use.typekit.net/orz7flp.css">
+    <link rel="stylesheet" href="css/checkout.css">
+    <style>
+        /* Modern Reset & Typography */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+        }
+        
+        /* Top Urgency Header */
+        .urgency-bar {
+            width: 100%;
+            background: linear-gradient(90deg, #d32f2f, #f57c00);
+            color: #fff;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            font-weight: 700;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+        .urgency-bar .timer-boxes {
+            display: flex;
+            gap: 6px;
+        }
+        .urgency-bar .timer-box {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 4px;
+            padding: 4px 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 44px;
+        }
+        .urgency-bar .timer-box span.num {
+            font-size: 16px;
+            font-weight: 900;
+            line-height: 1;
+            font-family: monospace;
+        }
+        .urgency-bar .timer-box span.label {
+            font-size: 8px;
+            opacity: 0.8;
+            margin-top: 2px;
+        }
+
+        /* Container */
+        .checkout-page {
+            width: 100%;
+            max-width: 480px;
+            padding: 24px 16px 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Logo Header */
+        .checkout-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .checkout-header h1 {
+            font-size: 26px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            color: #ffcb00;
+            text-shadow: 0 0 10px rgba(255, 203, 0, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .checkout-header h1 span.green {
+            color: #00e676;
+        }
+        .checkout-header p {
+            font-size: 13px;
+            color: #a0a0a0;
+            margin-top: 6px;
+        }
+
+        /* Main Card */
+        .checkout-card {
+            width: 100%;
+            background: #141414;
+            border: 1px solid #282828;
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 12px 36px rgba(0,0,0,0.6);
+            margin-bottom: 16px;
+            position: relative;
+        }
+
+        .card-top-badges {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .plan-badge {
+            background: rgba(0, 230, 118, 0.15);
+            color: #00e676;
+            border: 1px solid rgba(0, 230, 118, 0.4);
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .prime-badge {
+            background: rgba(245, 0, 87, 0.15);
+            color: #ff1744;
+            border: 1px solid rgba(245, 0, 87, 0.4);
+        }
+        .pci-badge {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: #00e676;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .price-display {
+            font-size: 40px;
+            font-weight: 900;
+            color: #fff;
+            margin-bottom: 20px;
+            letter-spacing: -1px;
+        }
+
+        .feature-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid #242424;
+            padding-bottom: 20px;
+        }
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 13px;
+            color: #ccc;
+            line-height: 1.4;
+        }
+        .feature-item svg {
+            flex-shrink: 0;
+            margin-top: 2px;
+            color: #00e676;
+        }
+
+        /* Form Inputs */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 16px;
+        }
+        .form-label {
+            font-size: 12px;
+            color: #888;
+            font-weight: 500;
+        }
+        .input-wrapper {
+            display: flex;
+            align-items: center;
+            background: #0a0a0a;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 12px 14px;
+            gap: 12px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .input-wrapper:focus-within {
+            border-color: #00e676;
+            box-shadow: 0 0 10px rgba(0, 230, 118, 0.2);
+        }
+        .input-wrapper svg {
+            color: #666;
+        }
+        .input-wrapper input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #fff;
+            font-size: 16px !important; /* iOS Safari auto-zoom prevention */
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        .input-wrapper input::placeholder {
+            color: #444;
+            text-transform: uppercase;
+        }
+
+        /* Pay Button */
+        .pay-btn {
+            width: 100%;
+            background: linear-gradient(90deg, #00c853, #aeea00);
+            color: #000;
+            border: none;
+            border-radius: 12px;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: transform 0.2s, filter 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 20px rgba(0, 200, 83, 0.4);
+            margin-top: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+        .pay-btn:hover {
+            transform: scale(1.02);
+            filter: brightness(1.1);
+            box-shadow: 0 6px 25px rgba(0, 200, 83, 0.6);
+        }
+        .pay-btn:active {
+            transform: scale(0.98);
+        }
+        .pay-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Trust Badges */
+        .trust-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 16px;
+            margin-top: 18px;
+            font-size: 11px;
+            color: #888;
+            font-weight: 600;
+        }
+        .trust-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .trust-item svg {
+            color: #00e676;
+        }
+
+        /* Payment Icons */
+        .payment-icons {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            margin-top: 16px;
+        }
+        .payment-icons img {
+            height: 24px;
+            object-fit: contain;
+            border-radius: 4px;
+            opacity: 0.9;
+            transition: opacity 0.2s;
+        }
+        .payment-icons img:hover {
+            opacity: 1;
+        }
+
+        /* Switch Plan Card */
+        .plan-switch-card {
+            width: 100%;
+            background: #141414;
+            border: 1px solid #282828;
+            border-radius: 16px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: border-color 0.2s, background 0.2s;
+            margin-bottom: 24px;
+        }
+        .plan-switch-card:hover {
+            border-color: #ffcb00;
+            background: #1a1a1a;
+        }
+        .plan-switch-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .plan-switch-left img {
+            width: 44px;
+            height: 44px;
+            object-fit: contain;
+        }
+        .plan-switch-text .label {
+            font-size: 10px;
+            color: #888;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        .plan-switch-text .title {
+            font-size: 15px;
+            color: #fff;
+            font-weight: 800;
+        }
+        .plan-switch-card svg.arrow {
+            color: #888;
+            transition: transform 0.2s;
+        }
+        .plan-switch-card:hover svg.arrow {
+            transform: translateX(4px);
+            color: #fff;
+        }
+
+        /* Footer */
+        .checkout-footer {
+            text-align: center;
+            font-size: 11px;
+            color: #666;
+            line-height: 1.6;
+        }
+        .checkout-footer .links {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 8px;
+        }
+        .checkout-footer .links a {
+            color: #888;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .checkout-footer .links a:hover {
+            color: #fff;
+        }
+
+        /* Modal Backdrop */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: 16px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .modal-backdrop.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Email Confirmation Modal */
+        .email-modal {
+            background: #181818;
+            border: 1px solid #2e2e2e;
+            border-radius: 20px;
+            padding: 28px 24px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+        }
+        .modal-backdrop.active .email-modal {
+            transform: translateY(0);
+        }
+        .email-icon-box {
+            width: 56px;
+            height: 56px;
+            background: rgba(0, 230, 118, 0.1);
+            border: 1px solid rgba(0, 230, 118, 0.3);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            color: #00e676;
+        }
+        .email-modal h2 {
+            font-size: 20px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+        .email-modal p.sub {
+            font-size: 13px;
+            color: #a0a0a0;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+        .verified-email-box {
+            background: #0d0d0d;
+            border: 1px solid #2e2e2e;
+            border-radius: 12px;
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        .verified-email-box .email-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            font-weight: 700;
+            color: #fff;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .verified-badge {
+            background: rgba(0, 230, 118, 0.2);
+            color: #00e676;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 6px;
+            letter-spacing: 0.5px;
+        }
+        .email-modal p.question {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 20px;
+        }
+        .modal-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .modal-proceed-btn {
+            width: 100%;
+            background: linear-gradient(90deg, #00c853, #aeea00);
+            color: #000;
+            border: none;
+            border-radius: 12px;
+            padding: 14px;
+            font-size: 15px;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 200, 83, 0.3);
+        }
+        .modal-cancel-btn {
+            background: transparent;
+            border: none;
+            color: #888;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 6px;
+        }
+        .modal-cancel-btn:hover {
+            color: #fff;
+        }
+
+        /* Gateway / QR Code Modal */
+        .gateway-modal {
+            background: #ffffff;
+            color: #000;
+            border-radius: 20px;
+            padding: 24px;
+            width: 100%;
+            max-width: 440px;
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            position: relative;
+        }
+        .modal-backdrop.active .gateway-modal {
+            transform: translateY(0);
+        }
+        .gateway-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 16px;
+            margin-bottom: 16px;
+        }
+        .gateway-header .total-label {
+            font-size: 14px;
+            font-weight: 700;
+            color: #333;
+        }
+        .gateway-header .total-amount {
+            font-size: 20px;
+            font-weight: 900;
+            color: #000;
+        }
+        .qr-card {
+            border: 1.5px solid #00c853;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            margin-bottom: 16px;
+            background: #fafafa;
+        }
+        .qr-card .qr-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            color: #111;
+            margin-bottom: 16px;
+        }
+        .qr-card .qr-title .radio-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 4px solid #00c853;
+            background: #fff;
+        }
+        .qr-image-container {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 16px;
+            border-radius: 8px;
+            background: #fff;
+            padding: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .qr-image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        .qr-disclaimer {
+            font-size: 11px;
+            color: #666;
+            line-height: 1.4;
+        }
+        .session-timer {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+        .session-timer strong {
+            color: #000;
+        }
+        .upi-apps-row {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+        .upi-app-btn {
+            flex: 1;
+            padding: 10px 6px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            color: #333;
+            font-size: 10px;
+            font-weight: 700;
+            transition: border-color 0.2s, transform 0.2s;
+        }
+        .upi-app-btn:hover {
+            border-color: #00c853;
+            transform: translateY(-2px);
+        }
+        .upi-app-btn img {
+            height: 20px;
+            object-fit: contain;
+        }
+        .complete-sim-btn {
+            width: 100%;
+            background: #00c853;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+            margin-bottom: 12px;
+            transition: background 0.2s;
+        }
+        .complete-sim-btn:hover {
+            background: #009624;
+        }
+        .gateway-badges {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid #eee;
+            padding-top: 12px;
+            font-size: 11px;
+            color: #888;
+        }
+        .gateway-badges .left-links a {
+            color: #0070f3;
+            text-decoration: none;
+            margin-right: 8px;
+        }
+        .gateway-badges .right-logos {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .gateway-close-btn {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            background: transparent;
+            border: none;
+            font-size: 22px;
+            color: #888;
+            cursor: pointer;
+            line-height: 1;
+        }
+        .gateway-close-btn:hover {
+            color: #000;
+        }
+    
+        /* iOS & Android Mobile Enhancements */
+        html {
+            -webkit-text-size-adjust: 100%;
+            touch-action: pan-y pinch-zoom;
+        }
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overscroll-behavior-y: none;
+            -webkit-overflow-scrolling: touch;
+        }
+        button, a, input, select, textarea, .plan-card, .tab-btn {
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .urgency-bar {
+            padding-top: max(10px, env(safe-area-inset-top));
+        }
+        .checkout-page {
+            padding-bottom: max(40px, env(safe-area-inset-bottom));
+            padding-left: max(16px, env(safe-area-inset-left));
+            padding-right: max(16px, env(safe-area-inset-right));
+        }
+        .modal-cancel-btn {
+            min-height: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 16px !important;
+        }
+        .modal-close-btn {
+            min-width: 44px;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .gateway-footer a {
+            padding: 8px;
+            display: inline-block;
+        }
+
+    </style>
+
+<style id="bsl-payment-pc-engine">
+/* Custom PC Gaming Scrollbar */
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: #050706; }
+::-webkit-scrollbar-thumb { background: #14241b; border-radius: 5px; border: 2px solid #050706; }
+::-webkit-scrollbar-thumb:hover { background: #02de61; box-shadow: 0 0 10px #02de61; }
+
+/* PC Desktop Ergonomics & Visual Framing */
+@media (min-width: 992px) {
+    .checkout-page {
+        max-width: 540px !important;
+        padding: 36px 20px 60px !important;
+    }
+    .checkout-card {
+        padding: 32px 30px !important;
+        background: rgba(14, 17, 15, 0.85) !important;
+        backdrop-filter: blur(20px) !important;
+        border: 1px solid rgba(2, 222, 97, 0.3) !important;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9), 0 0 35px rgba(2, 222, 97, 0.12) !important;
+        border-radius: 20px !important;
+    }
+    .urgency-bar {
+        padding: 12px 24px !important;
+        font-size: 15px !important;
+    }
+    .modal-proceed-btn:hover, #pay-now-btn:hover {
+        transform: translateY(-2px) scale(1.015) !important;
+        box-shadow: 0 8px 30px rgba(2, 222, 97, 0.6) !important;
+        filter: brightness(1.05) !important;
+    }
+    .plan-switch:hover {
+        border-color: rgba(255, 203, 0, 0.5) !important;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5) !important;
+    }
+    .form-group input:hover {
+        border-color: rgba(2, 222, 97, 0.5) !important;
+    }
+    .form-group input:focus {
+        border-color: #02de61 !important;
+        box-shadow: 0 0 16px rgba(2, 222, 97, 0.35) !important;
+    }
+}
+
+/* Payment Footer Socials */
+.payment-social-links {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    margin-top: 20px;
+    margin-bottom: 8px;
+}
+.payment-social-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #8b8b8b;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.03);
+    transition: all 0.2s ease;
+}
+.payment-social-pill:hover {
+    color: #02de61;
+    border-color: rgba(2, 222, 97, 0.4);
+    background: rgba(2, 222, 97, 0.08);
+    transform: translateY(-1px);
+}
+.payment-social-pill.ig:hover {
+    color: #ff6b95;
+    border-color: rgba(225, 48, 108, 0.4);
+    background: rgba(225, 48, 108, 0.08);
+}
+</style>
+
+</head>
+<body>
+
+    <!-- Urgency Top Header -->
+    <div class="urgency-bar">
+        <div style="display:flex; align-items:center; gap:8px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            <span>IMPROVE YOUR SENSITIVITY ONCE AND FOR ALL!</span>
+        </div>
+        <div class="timer-boxes">
+            <div class="timer-box"><span class="num" id="tb-hours">00</span><span class="label">HOURS</span></div>
+            <div class="timer-box"><span class="num" id="tb-minutes">14</span><span class="label">MIN</span></div>
+            <div class="timer-box"><span class="num" id="tb-seconds">59</span><span class="label">SEC</span></div>
+        </div>
+    </div>
+
+    <!-- Main Checkout Container -->
+    <div class="checkout-page">
+        <!-- Logo -->
+        <div class="checkout-header">
+            <a href="index.html" style="text-decoration:none;">
+                <h1>BRAZIL <span class="green">SENSI</span> LEGENDS</h1>
+            </a>
+            <p>Elevate your game with personalized sensitivity</p>
+        </div>
+
+        <!-- Checkout Card -->
+        <div class="checkout-card">
+            <div class="card-top-badges">
+                <span class="plan-badge" id="planBadge">VIP PLAN</span>
+                <span class="pci-badge">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    PCI DSS Compliant
+                </span>
+            </div>
+
+            <div class="price-display" id="planPrice">₹399</div>
+
+            <ul class="feature-list" id="featureList">
+                <li class="feature-item">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    <span>Compatible with all devices (Android, iPhones, and emulators)</span>
+                </li>
+                <li class="feature-item">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    <span>Super Mobile Optimization, Full FPS + aim stabilization</span>
+                </li>
+                <li class="feature-item">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    <span>WhatsApp with VIP support and assistance from Brazilian players</span>
+                </li>
+                <li class="feature-item">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    <span>HUD secrets from Brazilian legends</span>
+                </li>
+                <li class="feature-item">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    <span>Sticky Aim Methods</span>
+                </li>
+                <li class="feature-item">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    <span>Lifetime Sensitivity + Secret Bonuses</span>
+                </li>
+            </ul>
+
+            <form id="checkoutForm" onsubmit="event.preventDefault(); handleContinuePayment();">
+                <div class="form-group">
+                    <label class="form-label" for="userName">Your full name</label>
+                    <div class="input-wrapper">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                        <input type="text" id="userName" placeholder="YOUR FULL NAME" required autocomplete="name">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="userEmail">Your e-mail</label>
+                    <div class="input-wrapper">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                        <input type="email" id="userEmail" placeholder="YOUR@EMAIL.COM" required autocomplete="email">
+                    </div>
+                </div>
+
+                <button type="submit" class="pay-btn" id="submitBtn">
+                    <span>Continue to Payment</span>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </button>
+            </form>
+
+            <div class="trust-row">
+                <div class="trust-item">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                    <span>PCI DSS</span>
+                </div>
+                <div class="trust-item">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                    <span>SECURE</span>
+                </div>
+                <div class="trust-item">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+                    <span>256-BIT SSL</span>
+                </div>
+            </div>
+
+            <div class="payment-icons">
+                <img src="assets/images/gpay.webp" alt="Google Pay">
+                <img src="assets/images/phonepe.webp" alt="PhonePe">
+                <img src="assets/images/paytm.webp" alt="Paytm">
+                <img src="assets/images/bhim.webp" alt="BHIM UPI">
+            </div>
+        </div>
+
+        <!-- Plan Switcher Card -->
+        <div class="plan-switch-card" id="planSwitchCard" onclick="togglePlan()">
+            <div class="plan-switch-left">
+                <img src="assets/images/PRIME_1_1x.webp" id="switchImg" alt="Prime Plan">
+                <div class="plan-switch-text">
+                    <div class="label">DISCOVER ANOTHER PLAN</div>
+                    <div class="title" id="switchTitle">PRIME PLAN — ₹699</div>
+                </div>
+            </div>
+            <svg class="arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </div>
+
+        <!-- Footer -->
+        <div class="checkout-footer">
+            <div class="payment-social-links">
+                <a href="https://wa.me/919625201893" target="_blank" class="payment-social-pill">
+                    <img src="assets/images/Vqu6fCeAs1XX6GLr4sjccefWo.webp" style="width: 14px; height: 14px; object-fit: contain;" alt="WhatsApp">
+                    <span>WhatsApp Support</span>
+                </a>
+                <a href="https://www.instagram.com/bsl.real/" target="_blank" class="payment-social-pill ig">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                    <span>@bsl.real</span>
+                </a>
+            </div>
+            <div class="links">
+                <a href="terms-of-use.html" target="_blank">Terms of Use</a>
+                <a href="privacy-policy.html" target="_blank">Privacy Policy</a>
+            </div>
+            <div>© 2026 Brazil Sensi Legends. All rights reserved.</div>
+            <div style="margin-top:6px; color:#555; font-size:10px; font-weight:600;">MADE WITH CARE BY: <span style="color:#00e676;">Blazen</span></div>
+        </div>
+    </div>
+
+    <!-- Email Confirmation Modal -->
+    <div class="modal-backdrop" id="emailModal">
+        <div class="email-modal">
+            <div class="email-icon-box">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+            </div>
+            <h2>Confirm your e-mail</h2>
+            <p class="sub">Your digital access and order details will be sent directly to this e-mail address:</p>
+
+            <div class="verified-email-box">
+                <div class="email-content">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00e676" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    <span id="modalConfirmedEmail">user@example.com</span>
+                </div>
+                <span class="verified-badge">VERIFIED</span>
+            </div>
+
+            <p class="question">Is this e-mail address correct to receive your product?</p>
+
+            <div class="modal-actions">
+                <button type="button" class="modal-proceed-btn" onclick="openGatewayModal()">Yes, proceed to payment</button>
+                <button type="button" class="modal-cancel-btn" onclick="closeEmailModal()">Change email</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Gateway & QR Code Modal -->
+    <div class="modal-backdrop" id="gatewayModal">
+        <div class="gateway-modal">
+            <button class="gateway-close-btn" onclick="closeGatewayModal()">&times;</button>
+            
+            <div class="gateway-header">
+                <span class="total-label">Total Amount (Inc. Taxes)</span>
+                <span class="total-amount" id="gatewayAmount">₹399.00</span>
+            </div>
+
+            <div class="qr-card">
+                <div class="qr-title">
+                    <div class="radio-dot"></div>
+                    <span>Pay using QR Code</span>
+                </div>
+
+                <div class="qr-image-container">
+                    <img id="qrCodeImg" src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=upi://pay?pa=brazilsensilegends@upi&pn=Brazil%20Sensi%20Legends&am=399&cu=INR" alt="UPI QR Code">
+                </div>
+
+                <div class="qr-disclaimer">
+                    Scan with any UPI app (GPay, PhonePe, Paytm, BHIM) to complete your payment instantly.
+                </div>
+            </div>
+
+            <!-- Quick UPI App Buttons (Instant Mobile App Switch) -->
+            <div class="upi-apps-row">
+                <a id="gpayDeepLink" href="#" class="upi-app-btn" onclick="handleUpiClick('GPay')">
+                    <img src="assets/images/gpay.webp" alt="GPay">
+                    <span>Google Pay</span>
+                </a>
+                <a id="phonepeDeepLink" href="#" class="upi-app-btn" onclick="handleUpiClick('PhonePe')">
+                    <img src="assets/images/phonepe.webp" alt="PhonePe">
+                    <span>PhonePe</span>
+                </a>
+                <a id="paytmDeepLink" href="#" class="upi-app-btn" onclick="handleUpiClick('Paytm')">
+                    <img src="assets/images/paytm.webp" alt="Paytm">
+                    <span>Paytm</span>
+                </a>
+            </div>
+
+            <div class="session-timer">
+                Session will expire in: <strong id="gatewayExpireTimer">23 hours 59 minutes 50 seconds</strong>
+            </div>
+
+            <button type="button" class="complete-sim-btn" onclick="completePaymentSimulation()">I Have Completed Payment &rarr;</button>
+
+            <div class="gateway-badges">
+                <div class="left-links">
+                    <a href="terms-of-use.html" target="_blank">Legal</a>
+                    <a href="https://wa.me/919625201893?text=Hi%2C+I+have+completed+the+payment+for+Brazil+Sensi+Legends.+Please+grant+me+VIP+access%21" target="_blank">Contact</a>
+                </div>
+                <div class="right-logos">
+                    <span style="font-weight:800; color:#111;">Transact Bridge</span>
+                    <span style="background:#00c853; color:#fff; font-size:9px; font-weight:800; padding:2px 4px; border-radius:3px;">PCI DSS</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal-backdrop" id="successModal">
+        <div class="email-modal" style="background:#111;">
+            <div class="email-icon-box" style="background:rgba(0,230,118,0.2);">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#00e676" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </div>
+            <h2 style="color:#00e676; margin-bottom:8px;">Payment Successful!</h2>
+            <p class="sub" style="color:#ddd;">Your order has been verified. Join the VIP WhatsApp group now to receive your sensitivity config immediately.</p>
+            <div class="modal-actions" style="margin-top:20px;">
+                <a id="whatsappJoinBtn" href="https://wa.me/919625201893?text=Hi%2C+I+have+completed+the+payment+for+Brazil+Sensi+Legends.+Please+grant+me+VIP+access%21" target="_blank" class="modal-proceed-btn" style="text-decoration:none; display:flex; align-items:center; justify-content:center; gap:8px;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
+                    <span>JOIN VIP WHATSAPP GROUP</span>
+                </a>
+                <button type="button" class="modal-cancel-btn" onclick="window.location.href='index.html'">Back to Home</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script for interactive checkout -->
+    <script>
+        // State
+        const plans = {
+            legends: {
+                id: 'legends',
+                name: 'VIP PLAN',
+                priceNum: 399,
+                priceStr: '₹399',
+                features: [
+                    'Compatible with all devices (Android, iPhones, and emulators)',
+                    'Super Mobile Optimization, Full FPS + aim stabilization',
+                    'WhatsApp with VIP support and assistance from Brazilian players',
+                    'HUD secrets from Brazilian legends',
+                    'Sticky Aim Methods',
+                    'Lifetime Sensitivity + Secret Bonuses'
+                ],
+                otherId: 'elite',
+                otherName: 'PRIME PLAN',
+                otherPrice: '₹699',
+                otherImg: 'assets/images/PRIME_1_1x.webp'
+            },
+            elite: {
+                id: 'elite',
+                name: 'PRIME PLAN',
+                priceNum: 699,
+                priceStr: '₹699',
+                features: [
+                    'Everything included in VIP Plan',
+                    'Sensitivity generator tuned to your exact device model',
+                    'Direct support team from Brazil',
+                    'Access to the Brazilian Legends VIP Discord',
+                    'Sensitivity updated every single week',
+                    'Learn game sense & secret tricks from Brazil\'s best players'
+                ],
+                otherId: 'legends',
+                otherName: 'VIP PLAN',
+                otherPrice: '₹399',
+                otherImg: 'assets/images/oLkKa5Y5JYiKrTlhLOdl6q3hvms.webp'
+            }
+        };
+
+        let currentPlan = 'legends';
+
+        function initPlan() {
+            const params = new URLSearchParams(window.location.search);
+            const planParam = params.get('plan');
+            if (planParam === 'elite' || planParam === 'prime') {
+                currentPlan = 'elite';
+            } else {
+                currentPlan = 'legends';
+            }
+            renderPlan();
+        }
+
+        function renderPlan() {
+            const p = plans[currentPlan];
+            const badge = document.getElementById('planBadge');
+            badge.innerText = p.name;
+            if (currentPlan === 'elite') {
+                badge.classList.add('prime-badge');
+            } else {
+                badge.classList.remove('prime-badge');
+            }
+
+            document.getElementById('planPrice').innerText = p.priceStr;
+            document.getElementById('gatewayAmount').innerText = p.priceStr + '.00';
+
+            // Features
+            const fl = document.getElementById('featureList');
+            fl.innerHTML = p.features.map(f => `
+                <li class="feature-item">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    <span>${f}</span>
+                </li>
+            `).join('');
+
+            // Switch card
+            document.getElementById('switchTitle').innerText = `${p.otherName} — ${p.otherPrice}`;
+            document.getElementById('switchImg').src = p.otherImg;
+
+            // QR Code update
+            updateQrCode(p.priceNum);
+        }
+
+        function togglePlan() {
+            currentPlan = plans[currentPlan].otherId;
+            const url = new URL(window.location);
+            url.searchParams.set('plan', currentPlan);
+            window.history.pushState({}, '', url);
+            renderPlan();
+        }
+
+        function updateQrCode(amount) {
+            const upiUrl = `upi://pay?pa=brazilsensilegends@upi&pn=Brazil%20Sensi%20Legends&am=${amount}&cu=INR&tn=BSL%20Sensi%20Access`;
+            document.getElementById('qrCodeImg').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upiUrl)}`;
+            document.getElementById('gpayDeepLink').href = upiUrl;
+            document.getElementById('phonepeDeepLink').href = upiUrl;
+            document.getElementById('paytmDeepLink').href = upiUrl;
+        }
+
+        // Countdown Timer
+        let totalSeconds = 14 * 60 + 59;
+        function updateTimer() {
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+            
+            document.getElementById('tb-hours').innerText = String(hours).padStart(2, '0');
+            document.getElementById('tb-minutes').innerText = String(minutes).padStart(2, '0');
+            document.getElementById('tb-seconds').innerText = String(seconds).padStart(2, '0');
+
+            if (totalSeconds > 0) {
+                totalSeconds--;
+            } else {
+                totalSeconds = 15 * 60; // reset loop
+            }
+        }
+        setInterval(updateTimer, 1000);
+
+        // Modal Handlers
+        function handleContinuePayment() {
+            const email = document.getElementById('userEmail').value.trim();
+            if (!email) return;
+            document.getElementById('modalConfirmedEmail').innerText = email;
+            document.getElementById('emailModal').classList.add('active');
+        }
+
+        function closeEmailModal() {
+            document.getElementById('emailModal').classList.remove('active');
+        }
+
+        function openGatewayModal() {
+            closeEmailModal();
+            document.getElementById('gatewayModal').classList.add('active');
+        }
+
+        function closeGatewayModal() {
+            document.getElementById('gatewayModal').classList.remove('active');
+        }
+
+        function handleUpiClick(app) {
+            console.log(`Opening ${app}...`);
+        }
+
+        function completePaymentSimulation() {
+            closeGatewayModal();
+            const name = document.getElementById('userName').value.trim() || 'Player';
+            const whatsappText = encodeURIComponent(`Hi, I'm ${name} and I just completed my payment for the Brazil Sensi Legends ${plans[currentPlan].name}! Please give me my VIP access link.`);
+            document.getElementById('whatsappJoinBtn').href = `https://wa.me/919625201893?text=${whatsappText}`;
+            document.getElementById('successModal').classList.add('active');
+        }
+
+        window.addEventListener('DOMContentLoaded', initPlan);
+    </script>
+</body>
+</html>
