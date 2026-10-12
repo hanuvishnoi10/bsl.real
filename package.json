@@ -1,0 +1,27 @@
+{
+  "name": "brazilsensilegends-clone",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hanuvishnoi10/bsl.real.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/hanuvishnoi10/bsl.real/issues"
+  },
+  "homepage": "https://github.com/hanuvishnoi10/bsl.real#readme",
+  "dependencies": {
+    "dotenv": "^18.0.7",
+    "razorpay": "^2.9.8"
+  }
+}

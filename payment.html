@@ -13,6 +13,8 @@
     <link rel="icon" href="assets/images/yrrabLBv0i13BdICerAzJbPj6Y.png">
     <link rel="stylesheet" href="https://use.typekit.net/orz7flp.css">
     <link rel="stylesheet" href="css/checkout.css">
+    <!-- Razorpay Standard Checkout SDK -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <style>
         /* Modern Reset & Typography */
         * {
@@ -380,6 +382,7 @@
             position: fixed;
             inset: 0;
             background: rgba(0, 0, 0, 0.85);
+            -webkit-backdrop-filter: blur(8px);
             backdrop-filter: blur(8px);
             display: flex;
             align-items: center;
@@ -510,7 +513,7 @@
             transition: transform 0.3s ease;
             box-shadow: 0 20px 50px rgba(0,0,0,0.8);
             position: relative;
-        }
+         max-height: 90vh; overflow-y: auto;}
         .modal-backdrop.active .gateway-modal {
             transform: translateY(0);
         }
@@ -556,28 +559,115 @@
             border: 4px solid #00c853;
             background: #fff;
         }
+        .qr-view-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+        .qr-tab-btn {
+            background: rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 6px;
+            padding: 5px 12px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #555;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .qr-tab-btn:hover {
+            background: rgba(0, 0, 0, 0.08);
+            color: #111;
+        }
+        .qr-tab-btn.active {
+            background: #00c853;
+            border-color: #00c853;
+            color: #fff;
+        }
         .qr-image-container {
-            width: 200px;
-            height: 200px;
-            margin: 0 auto 16px;
-            border-radius: 8px;
+            width: 100%;
+            max-width: 260px;
+            margin: 0 auto 12px;
+            border-radius: 12px;
             background: #fff;
             padding: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
             position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
+            overflow: hidden;
+            transition: all 0.2s ease;
         }
         .qr-image-container img {
             width: 100%;
-            height: 100%;
+            height: auto;
+            max-height: 400px;
             object-fit: contain;
+            display: block;
+            border-radius: 8px;
         }
         .qr-disclaimer {
             font-size: 11px;
             color: #666;
             line-height: 1.4;
+            margin-bottom: 8px;
+        }
+        .upi-id-copy-box {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f7faf8;
+            border: 1px dashed rgba(0, 200, 83, 0.5);
+            border-radius: 8px;
+            padding: 8px 12px;
+            margin-top: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .upi-id-copy-box:hover {
+            background: #edfbf2;
+            border-color: #00c853;
+        }
+        .upi-id-left {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+            overflow: hidden;
+        }
+        .upi-id-label {
+            font-size: 9px;
+            text-transform: uppercase;
+            font-weight: 800;
+            color: #00a844;
+            letter-spacing: 0.5px;
+        }
+        .upi-id-text {
+            font-size: 11px;
+            font-weight: 700;
+            color: #111;
+            font-family: monospace;
+            word-break: break-all;
+        }
+        .copy-upi-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #fff;
+            border: 1px solid rgba(0, 200, 83, 0.4);
+            border-radius: 6px;
+            padding: 4px 10px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #00a844;
+            cursor: pointer;
+            flex-shrink: 0;
+            margin-left: 8px;
+        }
+        .copy-upi-btn:hover {
+            background: #00c853;
+            color: #fff;
         }
         .session-timer {
             font-size: 12px;
@@ -711,6 +801,56 @@
             display: inline-block;
         }
 
+        /* Razorpay Checkout & Status Elements */
+        .payment-status-banner {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 8px;
+            margin-top: 14px;
+            font-size: 13px;
+            line-height: 1.4;
+            display: none;
+            align-items: center;
+            box-sizing: border-box;
+            font-weight: 600;
+            text-align: center;
+            justify-content: center;
+        }
+        .payment-status-banner.error {
+            background: rgba(255, 59, 48, 0.15);
+            border: 1px solid rgba(255, 59, 48, 0.4);
+            color: #ff6b6b;
+        }
+        .payment-status-banner.warning {
+            background: rgba(255, 179, 0, 0.15);
+            border: 1px solid rgba(255, 179, 0, 0.4);
+            color: #ffca28;
+        }
+        .payment-status-banner.info {
+            background: rgba(33, 150, 243, 0.15);
+            border: 1px solid rgba(33, 150, 243, 0.4);
+            color: #64b5f6;
+        }
+        .payment-status-banner.success {
+            background: rgba(0, 230, 118, 0.15);
+            border: 1px solid rgba(0, 230, 118, 0.4);
+            color: #00e676;
+        }
+        .btn-spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: btnSpin 0.7s linear infinite;
+            display: inline-block;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+        @keyframes btnSpin {
+            to { transform: rotate(360deg); }
+        }
+
     </style>
 
 <style id="bsl-payment-pc-engine">
@@ -729,6 +869,7 @@
     .checkout-card {
         padding: 32px 30px !important;
         background: rgba(14, 17, 15, 0.85) !important;
+        -webkit-backdrop-filter: blur(20px) !important;
         backdrop-filter: blur(20px) !important;
         border: 1px solid rgba(2, 222, 97, 0.3) !important;
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9), 0 0 35px rgba(2, 222, 97, 0.12) !important;
@@ -867,11 +1008,13 @@
                     </div>
                 </div>
 
+                
+
                 <div class="form-group">
-                    <label class="form-label" for="userEmail">Your e-mail</label>
+                    <label class="form-label" for="userPhone">Your Phone / WhatsApp Number</label>
                     <div class="input-wrapper">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-                        <input type="email" id="userEmail" placeholder="YOUR@EMAIL.COM" required autocomplete="email">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                        <input type="tel" id="userPhone" placeholder="+91 98765 43210" required autocomplete="tel">
                     </div>
                 </div>
 
@@ -879,6 +1022,8 @@
                     <span>Continue to Payment</span>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
                 </button>
+
+                <div id="paymentStatusBanner" class="payment-status-banner"></div>
             </form>
 
             <div class="trust-row">
@@ -937,28 +1082,28 @@
         </div>
     </div>
 
-    <!-- Email Confirmation Modal -->
+    <!-- Details Confirmation Modal -->
     <div class="modal-backdrop" id="emailModal">
         <div class="email-modal">
-            <div class="email-icon-box">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+            <div class="email-icon-box" style="background: rgba(37, 211, 102, 0.15); border: 1px solid rgba(37, 211, 102, 0.35);">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#25d366" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
             </div>
-            <h2>Confirm your e-mail</h2>
-            <p class="sub">Your digital access and order details will be sent directly to this e-mail address:</p>
+            <h2>Confirm your details</h2>
+            <p class="sub">Your digital access and VIP sensitivity config will be sent directly via WhatsApp:</p>
 
             <div class="verified-email-box">
                 <div class="email-content">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00e676" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                    <span id="modalConfirmedEmail">user@example.com</span>
+                    <span id="modalConfirmedPhone">+91 98765 43210</span>
                 </div>
-                <span class="verified-badge">VERIFIED</span>
+                <span class="verified-badge" style="background:rgba(37,211,102,0.2); color:#25d366; border-color:rgba(37,211,102,0.4);">WHATSAPP</span>
             </div>
 
-            <p class="question">Is this e-mail address correct to receive your product?</p>
+            <p class="question" style="margin-top:14px;">Is this WhatsApp number correct to receive your VIP access?</p>
 
             <div class="modal-actions">
-                <button type="button" class="modal-proceed-btn" onclick="openGatewayModal()">Yes, proceed to payment</button>
-                <button type="button" class="modal-cancel-btn" onclick="closeEmailModal()">Change email</button>
+                <button type="button" class="modal-proceed-btn" id="confirmProceedBtn" onclick="initiateRazorpayCheckout()">Proceed to Razorpay Payment</button>
+                <button type="button" class="modal-cancel-btn" onclick="closeEmailModal()">Change number</button>
             </div>
         </div>
     </div>
@@ -973,18 +1118,40 @@
                 <span class="total-amount" id="gatewayAmount">₹399.00</span>
             </div>
 
+            <div style="margin-bottom: 16px;">
+                <button type="button" class="modal-proceed-btn" onclick="initiateRazorpayCheckout()" style="display:flex; align-items:center; justify-content:center; gap:8px;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+                    <span>PAY WITH RAZORPAY (ALL UPI &amp; CARDS)</span>
+                </button>
+            </div>
             <div class="qr-card">
                 <div class="qr-title">
                     <div class="radio-dot"></div>
                     <span>Pay using QR Code</span>
                 </div>
 
+                <div class="qr-view-tabs">
+                    <button type="button" class="qr-tab-btn active" id="qrBtnCard" onclick="toggleQrView('card')">QR Code Card</button>
+                    <button type="button" class="qr-tab-btn" id="qrBtnFull" onclick="toggleQrView('full')">Full Official Standee</button>
+                </div>
+
                 <div class="qr-image-container">
-                    <img id="qrCodeImg" src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=upi://pay?pa=brazilsensilegends@upi&pn=Brazil%20Sensi%20Legends&am=399&cu=INR" alt="UPI QR Code">
+                    <img id="qrCodeImg" src="assets/images/razorpay-qr-399-card.jpg" alt="Official Razorpay UPI QR Code">
                 </div>
 
                 <div class="qr-disclaimer">
-                    Scan with any UPI app (GPay, PhonePe, Paytm, BHIM) to complete your payment instantly.
+                    Scan with any UPI app (GPay, PhonePe, Paytm, BHIM, Cred) to complete your payment instantly.
+                </div>
+
+                <div class="upi-id-copy-box" onclick="copyUpiId()" title="Click to copy UPI ID">
+                    <div class="upi-id-left">
+                        <span class="upi-id-label">Official UPI ID</span>
+                        <span class="upi-id-text" id="displayUpiId">brazilsensilege110438.rzp@rxairtel</span>
+                    </div>
+                    <button type="button" class="copy-upi-btn" id="copyUpiBtn">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                        <span>Copy</span>
+                    </button>
                 </div>
             </div>
 
@@ -1030,13 +1197,69 @@
                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#00e676" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
             </div>
             <h2 style="color:#00e676; margin-bottom:8px;">Payment Successful!</h2>
-            <p class="sub" style="color:#ddd;">Your order has been verified. Join the VIP WhatsApp group now to receive your sensitivity config immediately.</p>
+            <p class="sub" style="color:#ddd;">Your order has been verified by Razorpay. Join the VIP WhatsApp group now to receive your sensitivity config immediately.</p>
+            <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(0,230,118,0.3); border-radius: 8px; padding: 12px; margin: 16px 0; text-align: left; font-size: 12px; color: #aaa;">
+                <div style="display:flex; justify-content:space-between; margin-bottom: 6px;">
+                    <span>Customer:</span>
+                    <strong id="displaySuccessCustomer" style="color: #fff;">—</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom: 6px;">
+                    <span>WhatsApp:</span>
+                    <strong id="displaySuccessPhone" style="color: #00e676; font-family: monospace;">—</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom: 6px;">
+                    <span>Payment ID:</span>
+                    <strong id="displayPaymentId" style="color: #00e676; font-family: monospace;">-</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between;">
+                    <span>Order ID:</span>
+                    <strong id="displayOrderId" style="color: #fff; font-family: monospace;">-</strong>
+                </div>
+            </div>
             <div class="modal-actions" style="margin-top:20px;">
                 <a id="whatsappJoinBtn" href="https://wa.me/919625201893?text=Hi%2C+I+have+completed+the+payment+for+Brazil+Sensi+Legends.+Please+grant+me+VIP+access%21" target="_blank" class="modal-proceed-btn" style="text-decoration:none; display:flex; align-items:center; justify-content:center; gap:8px;">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
                     <span>JOIN VIP WHATSAPP GROUP</span>
                 </a>
                 <button type="button" class="modal-cancel-btn" onclick="window.location.href='index.html'">Back to Home</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Failed Modal -->
+    <div class="modal-backdrop" id="failedModal">
+        <div class="email-modal" style="background:#111; border: 1px solid rgba(255, 71, 87, 0.4); box-shadow: 0 10px 40px rgba(255, 71, 87, 0.25);">
+            <div class="email-icon-box" style="background:rgba(255, 71, 87, 0.15); border: 1px solid rgba(255, 71, 87, 0.4);">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ff4757" stroke-width="3"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+            </div>
+            <h2 style="color:#ff4757; margin-bottom:8px;" id="failedModalTitle">Payment Incomplete</h2>
+            <p class="sub" style="color:#ddd;" id="failedModalDesc">Your payment was not completed or was cancelled. No charges were made to your account.</p>
+            
+            <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255, 71, 87, 0.25); border-radius: 8px; padding: 12px; margin: 16px 0; text-align: left; font-size: 12px; color: #aaa;">
+                <div style="display:flex; justify-content:space-between; margin-bottom: 6px;">
+                    <span>Reason:</span>
+                    <strong id="displayFailureReason" style="color: #ff6b81;">Cancelled by user</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom: 6px;" id="failedOrderRow">
+                    <span>Order ID:</span>
+                    <strong id="displayFailedOrderId" style="color: #fff; font-family: monospace;">—</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between;" id="failedPayRow">
+                    <span>Customer:</span>
+                    <strong id="displayFailedCustomer" style="color: #bbb;">—</strong>
+                </div>
+            </div>
+
+            <div class="modal-actions" style="margin-top:16px;">
+                <button type="button" class="modal-proceed-btn" onclick="retryPaymentFromFailedModal()" style="background:#02de61; color:#000;">
+                    Retry Razorpay Payment
+                </button>
+                <button type="button" class="modal-proceed-btn" onclick="openGatewayFromFailedModal()" style="background:rgba(255,255,255,0.08); color:#fff; border: 1px solid rgba(255,255,255,0.2);">
+                    Pay via UPI QR Code
+                </button>
+                <a id="failedWhatsAppBtn" href="https://wa.me/919625201893?text=Hi%2C+I+had+an+issue+with+my+payment+on+Brazil+Sensi+Legends.+Please+help+me." target="_blank" class="modal-cancel-btn" style="text-decoration:none; display:flex; align-items:center; justify-content:center; gap:6px; color:#25d366;">
+                    Contact WhatsApp Support &rarr;
+                </a>
             </div>
         </div>
     </div>
@@ -1134,12 +1357,101 @@
             renderPlan();
         }
 
+        const UPI_CONFIG = {
+            399: {
+                amountStr: '₹399.00',
+                qrCard: 'assets/images/razorpay-qr-399-card.jpg',
+                qrFull: 'assets/images/razorpay-qr-399.jpg',
+                upiUrl: 'upi://pay?am=399.00&cu=INR&mc=8249&mode=19&pa=brazilsensilege110438.rzp@rxairtel&tn=Payment%20To%20Brazilsensilegends&tr=TmvVZFCebPOyWDqrv2',
+                upiId: 'brazilsensilege110438.rzp@rxairtel'
+            },
+            699: {
+                amountStr: '₹699.00',
+                qrCard: 'assets/images/razorpay-qr-699-card.jpg',
+                qrFull: 'assets/images/razorpay-qr-699.jpg',
+                upiUrl: 'upi://pay?am=699.00&cu=INR&mc=8249&mode=19&pa=brazilsensilege110438.rzp@rxairtel&tn=Payment%20To%20Brazilsensilegends&tr=TmvY65f6JDHAsbqrv2',
+                upiId: 'brazilsensilege110438.rzp@rxairtel'
+            }
+        };
+
+        let activeQrView = 'card';
+
         function updateQrCode(amount) {
-            const upiUrl = `upi://pay?pa=brazilsensilegends@upi&pn=Brazil%20Sensi%20Legends&am=${amount}&cu=INR&tn=BSL%20Sensi%20Access`;
-            document.getElementById('qrCodeImg').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upiUrl)}`;
-            document.getElementById('gpayDeepLink').href = upiUrl;
-            document.getElementById('phonepeDeepLink').href = upiUrl;
-            document.getElementById('paytmDeepLink').href = upiUrl;
+            const config = UPI_CONFIG[amount] || UPI_CONFIG[399];
+            const qrImg = document.getElementById('qrCodeImg');
+            if (qrImg) {
+                qrImg.src = activeQrView === 'full' ? config.qrFull : config.qrCard;
+                qrImg.alt = 'Razorpay UPI QR Code - ' + config.amountStr;
+            }
+            const amtEl = document.getElementById('gatewayAmount');
+            if (amtEl) amtEl.innerText = config.amountStr;
+
+            const upiIdEl = document.getElementById('displayUpiId');
+            if (upiIdEl) upiIdEl.innerText = config.upiId;
+
+            const gpay = document.getElementById('gpayDeepLink');
+            if (gpay) gpay.href = config.upiUrl;
+            const phonepe = document.getElementById('phonepeDeepLink');
+            if (phonepe) phonepe.href = config.upiUrl;
+            const paytm = document.getElementById('paytmDeepLink');
+            if (paytm) paytm.href = config.upiUrl;
+        }
+
+        function toggleQrView(view) {
+            activeQrView = view;
+            const p = plans[currentPlan];
+            updateQrCode(p.priceNum);
+            
+            const btnCard = document.getElementById('qrBtnCard');
+            const btnFull = document.getElementById('qrBtnFull');
+            if (btnCard && btnFull) {
+                if (view === 'card') {
+                    btnCard.classList.add('active');
+                    btnFull.classList.remove('active');
+                } else {
+                    btnCard.classList.remove('active');
+                    btnFull.classList.add('active');
+                }
+            }
+        }
+
+        function copyUpiId() {
+            const config = UPI_CONFIG[plans[currentPlan].priceNum] || UPI_CONFIG[399];
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(config.upiId).then(() => {
+                    showCopiedFeedback();
+                }).catch(() => {
+                    fallbackCopy(config.upiId);
+                });
+            } else {
+                fallbackCopy(config.upiId);
+            }
+        }
+
+        function fallbackCopy(text) {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.opacity = '0';
+            document.body.appendChild(ta);
+            ta.select();
+            try {
+                document.execCommand('copy');
+                showCopiedFeedback();
+            } catch (e) {
+                console.warn('Copy failed', e);
+            }
+            document.body.removeChild(ta);
+        }
+
+        function showCopiedFeedback() {
+            const btn = document.getElementById('copyUpiBtn');
+            if (btn) {
+                btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00c853" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg><span style="color:#00c853; font-weight:700;">Copied!</span>';
+                setTimeout(() => {
+                    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg><span>Copy</span>';
+                }, 2500);
+            }
         }
 
         // Countdown Timer
@@ -1161,11 +1473,79 @@
         }
         setInterval(updateTimer, 1000);
 
-        // Modal Handlers
+        // Payment Message Banner
+        function showPaymentMessage(message, type = 'info') {
+            const banner = document.getElementById('paymentStatusBanner');
+            if (!banner) return;
+            banner.className = 'payment-status-banner ' + type;
+            banner.innerText = message;
+            banner.style.display = 'flex';
+        }
+
+        function clearPaymentMessage() {
+            const banner = document.getElementById('paymentStatusBanner');
+            if (banner) {
+                banner.style.display = 'none';
+                banner.innerText = '';
+            }
+        }
+
+        let isPaymentInProgress = false;
+
+        function setPayButtonLoading(loading, text = '') {
+            const btn = document.getElementById('submitBtn');
+            const modalBtn = document.getElementById('confirmProceedBtn');
+            if (loading) {
+                isPaymentInProgress = true;
+                if (btn) {
+                    btn.disabled = true;
+                    btn.innerHTML = '<span>' + (text || 'Processing...') + '</span><div class="btn-spinner"></div>';
+                }
+                if (modalBtn) {
+                    modalBtn.disabled = true;
+                    modalBtn.innerText = text || 'Opening Razorpay...';
+                }
+            } else {
+                isPaymentInProgress = false;
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<span>Continue to Payment</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>';
+                }
+                if (modalBtn) {
+                    modalBtn.disabled = false;
+                    modalBtn.innerText = 'Proceed to Razorpay Payment';
+                }
+            }
+        }
+
+        // Modal Handlers & Customer Data
+        let activeOrderId = '';
+        let activeCustomerName = '';
+        let activeCustomerPhone = '';
+
         function handleContinuePayment() {
-            const email = document.getElementById('userEmail').value.trim();
-            if (!email) return;
-            document.getElementById('modalConfirmedEmail').innerText = email;
+            const name = (document.getElementById('userName')?.value || '').trim();
+            const phone = (document.getElementById('userPhone')?.value || '').trim();
+
+            if (!name) {
+                showPaymentMessage('Please enter your full name.', 'error');
+                document.getElementById('userName')?.focus();
+                return;
+            }
+            const cleanDigits = phone.replace(/[^0-9]/g, '');
+            if (!phone || cleanDigits.length < 10) {
+                showPaymentMessage('Please enter a valid 10-digit phone/WhatsApp number.', 'error');
+                document.getElementById('userPhone')?.focus();
+                return;
+            }
+
+            activeCustomerName = name;
+            activeCustomerPhone = phone;
+
+            clearPaymentMessage();
+            if (document.getElementById('modalConfirmedPhone')) {
+                document.getElementById('modalConfirmedPhone').innerText = phone;
+            }
             document.getElementById('emailModal').classList.add('active');
         }
 
@@ -1174,8 +1554,7 @@
         }
 
         function openGatewayModal() {
-            closeEmailModal();
-            document.getElementById('gatewayModal').classList.add('active');
+            initiateRazorpayCheckout();
         }
 
         function closeGatewayModal() {
@@ -1183,18 +1562,292 @@
         }
 
         function handleUpiClick(app) {
-            console.log(`Opening ${app}...`);
+            console.log('Selected ' + app + ', launching Razorpay...');
+            initiateRazorpayCheckout();
         }
 
         function completePaymentSimulation() {
-            closeGatewayModal();
-            const name = document.getElementById('userName').value.trim() || 'Player';
-            const whatsappText = encodeURIComponent(`Hi, I'm ${name} and I just completed my payment for the Brazil Sensi Legends ${plans[currentPlan].name}! Please give me my VIP access link.`);
-            document.getElementById('whatsappJoinBtn').href = `https://wa.me/919625201893?text=${whatsappText}`;
-            document.getElementById('successModal').classList.add('active');
+            initiateRazorpayCheckout();
         }
 
-        window.addEventListener('DOMContentLoaded', initPlan);
+        // Failure Modal Handlers
+        function openFailedModal(details) {
+            const modal = document.getElementById('failedModal');
+            if (!modal) return;
+            document.getElementById('displayFailureReason').innerText = details.reason || 'Payment could not be completed';
+            document.getElementById('displayFailedOrderId').innerText = details.orderId || activeOrderId || '—';
+            document.getElementById('displayFailedCustomer').innerText = details.customer || activeCustomerName || '—';
+
+            const wpBtn = document.getElementById('failedWhatsAppBtn');
+            if (wpBtn) {
+                const text = encodeURIComponent('Hi, my payment on Brazil Sensi Legends failed for Order ID ' + (details.orderId || activeOrderId || '') + '. Reason: ' + (details.reason || '') + '. Can you help me complete it?');
+                wpBtn.href = 'https://wa.me/919625201893?text=' + text;
+            }
+
+            modal.classList.add('active');
+        }
+
+        function closeFailedModal() {
+            document.getElementById('failedModal')?.classList.remove('active');
+        }
+
+        function retryPaymentFromFailedModal() {
+            closeFailedModal();
+            initiateRazorpayCheckout();
+        }
+
+        function openGatewayFromFailedModal() {
+            closeFailedModal();
+            const p = plans[currentPlan];
+            updateQrCode(p.priceNum);
+            const gModal = document.getElementById('gatewayModal');
+            if (gModal) gModal.classList.add('active');
+        }
+
+        async function reportFailureToServer(data) {
+            try {
+                await fetch('/api/record-failure', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+            } catch (err) {
+                console.warn('Failed to record failure on server:', err);
+            }
+        }
+
+        // Razorpay Standard Checkout Integration
+        async function initiateRazorpayCheckout() {
+            if (isPaymentInProgress) return;
+
+            const userName = (document.getElementById('userName')?.value || '').trim();
+            const userPhone = (document.getElementById('userPhone')?.value || '').trim();
+
+            if (!userName) {
+                closeEmailModal();
+                showPaymentMessage('Please enter your full name before proceeding.', 'error');
+                document.getElementById('userName')?.focus();
+                return;
+            }
+
+            const cleanDigits = userPhone.replace(/[^0-9]/g, '');
+            if (!userPhone || cleanDigits.length < 10) {
+                closeEmailModal();
+                showPaymentMessage('Please enter a valid 10-digit phone/WhatsApp number.', 'error');
+                document.getElementById('userPhone')?.focus();
+                return;
+            }
+
+            activeCustomerName = userName;
+            activeCustomerPhone = userPhone;
+
+            closeEmailModal();
+            closeGatewayModal();
+            closeFailedModal();
+            clearPaymentMessage();
+            setPayButtonLoading(true, 'Initializing Razorpay...');
+
+            try {
+                const p = plans[currentPlan];
+                const amountInPaise = p.priceNum * 100; // e.g. 39900 or 69900
+
+                // Step 1: Create Order via Backend POST /api/create-order
+                const orderRes = await fetch('/api/create-order', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        amount: amountInPaise,
+                        currency: 'INR',
+                        receipt: 'rcpt_' + Date.now(),
+                        name: userName,
+                        phone: userPhone,
+                        plan: currentPlan,
+                        plan_name: p.name,
+                        notes: {
+                            plan: currentPlan,
+                            plan_name: p.name,
+                            name: userName,
+                            phone: userPhone
+                        }
+                    })
+                });
+
+                if (!orderRes.ok) {
+                    const errObj = await orderRes.json().catch(() => ({}));
+                    throw new Error(errObj.error || 'Server returned status ' + orderRes.status);
+                }
+
+                const orderData = await orderRes.json();
+                if (!orderData.order_id) {
+                    throw new Error('Order creation failed: missing order_id.');
+                }
+
+                activeOrderId = orderData.order_id;
+
+                if (typeof window.Razorpay !== 'function') {
+                    throw new Error('Razorpay Checkout SDK not loaded. Please check your internet connection.');
+                }
+
+                // Step 2: Open Razorpay Standard Checkout Modal
+                const options = {
+                    key: orderData.key_id,
+                    amount: orderData.amount,
+                    currency: orderData.currency || 'INR',
+                    name: 'Brazil Sensi Legends',
+                    description: p.name + ' — Lifetime Sensitivity Access',
+                    image: 'assets/images/yrrabLBv0i13BdICerAzJbPj6Y.png',
+                    order_id: orderData.order_id,
+                    handler: async function (response) {
+                        // On Success: receive razorpay_payment_id, razorpay_order_id, razorpay_signature
+                        await verifyPayment(response, userName, userPhone);
+                    },
+                    prefill: {
+                        name: userName,
+                        contact: userPhone
+                    },
+                    notes: {
+                        plan: currentPlan,
+                        plan_name: p.name,
+                        phone: userPhone
+                    },
+                    theme: {
+                        color: '#02de61'
+                    },
+                    modal: {
+                        ondismiss: async function () {
+                            console.log('Razorpay checkout modal dismissed by user');
+                            setPayButtonLoading(false);
+                            await reportFailureToServer({
+                                order_id: orderData.order_id,
+                                name: userName,
+                                phone: userPhone,
+                                plan: currentPlan,
+                                plan_name: p.name,
+                                amount: p.priceNum,
+                                error_description: 'Checkout modal closed by user without completing payment',
+                                error_reason: 'cancelled_by_user'
+                            });
+                            openFailedModal({
+                                reason: 'Payment window was closed before completion',
+                                orderId: orderData.order_id,
+                                customer: userName
+                            });
+                        }
+                    }
+                };
+
+                const rzp = new window.Razorpay(options);
+
+                // Step 3: Handle payment.failed event
+                rzp.on('payment.failed', async function (failResp) {
+                    console.error('Payment failed:', failResp.error);
+                    const desc = failResp.error && failResp.error.description 
+                        ? failResp.error.description 
+                        : 'Payment transaction failed.';
+                    const reason = failResp.error?.reason || 'payment_failed';
+                    const paymentId = failResp.error?.metadata?.payment_id || '';
+                    const orderId = failResp.error?.metadata?.order_id || orderData.order_id;
+
+                    setPayButtonLoading(false);
+
+                    await reportFailureToServer({
+                        order_id: orderId,
+                        payment_id: paymentId,
+                        name: userName,
+                        phone: userPhone,
+                        plan: currentPlan,
+                        plan_name: p.name,
+                        amount: p.priceNum,
+                        error_description: desc,
+                        error_reason: reason
+                    });
+
+                    openFailedModal({
+                        reason: desc,
+                        orderId: orderId,
+                        paymentId: paymentId,
+                        customer: userName
+                    });
+                });
+
+                rzp.open();
+            } catch (err) {
+                console.error('Razorpay Checkout initiation failed:', err);
+                showPaymentMessage('Payment Error: ' + err.message, 'error');
+                setPayButtonLoading(false);
+            }
+        }
+
+        // Step 4: Verify Payment Signature via Backend POST /api/verify-payment
+        async function verifyPayment(paymentResponse, userName, userPhone) {
+            setPayButtonLoading(true, 'Verifying Payment...');
+            showPaymentMessage('Verifying payment signature with Razorpay...', 'info');
+
+            try {
+                const verifyRes = await fetch('/api/verify-payment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        razorpay_order_id: paymentResponse.razorpay_order_id,
+                        razorpay_payment_id: paymentResponse.razorpay_payment_id,
+                        razorpay_signature: paymentResponse.razorpay_signature
+                    })
+                });
+
+                const verifyData = await verifyRes.json().catch(() => ({}));
+
+                if (!verifyRes.ok || !verifyData.success) {
+                    throw new Error(verifyData.error || 'Payment signature verification failed.');
+                }
+
+                // Payment verified successfully!
+                clearPaymentMessage();
+                setPayButtonLoading(false);
+
+                // Populate success modal
+                const dispCust = document.getElementById('displaySuccessCustomer');
+                if (dispCust) dispCust.innerText = userName;
+                const dispPhone = document.getElementById('displaySuccessPhone');
+                if (dispPhone) dispPhone.innerText = userPhone;
+                const dispPay = document.getElementById('displayPaymentId');
+                if (dispPay) dispPay.innerText = paymentResponse.razorpay_payment_id;
+                const dispOrd = document.getElementById('displayOrderId');
+                if (dispOrd) dispOrd.innerText = paymentResponse.razorpay_order_id;
+
+                const p = plans[currentPlan];
+                const whatsappText = encodeURIComponent('Hi, I\'m ' + userName + ' (' + userPhone + ') and I just completed my payment of ' + p.priceStr + ' for ' + p.name + '! Payment ID: ' + paymentResponse.razorpay_payment_id + '. Please grant me VIP access!');
+                document.getElementById('whatsappJoinBtn').href = 'https://wa.me/919625201893?text=' + whatsappText;
+
+                document.getElementById('successModal').classList.add('active');
+            } catch (err) {
+                console.error('Payment verification failed:', err);
+                showPaymentMessage('Verification Alert: ' + err.message + ' (Reference Payment ID: ' + paymentResponse.razorpay_payment_id + ')', 'error');
+                setPayButtonLoading(false);
+
+                await reportFailureToServer({
+                    order_id: paymentResponse.razorpay_order_id,
+                    payment_id: paymentResponse.razorpay_payment_id,
+                    name: userName,
+                    phone: userPhone,
+                    plan: currentPlan,
+                    error_description: err.message,
+                    error_reason: 'verification_failed'
+                });
+
+                openFailedModal({
+                    reason: err.message,
+                    orderId: paymentResponse.razorpay_order_id,
+                    paymentId: paymentResponse.razorpay_payment_id,
+                    customer: userName
+                });
+            }
+        }
+
+        if (document.readyState === 'loading') {
+            window.addEventListener('DOMContentLoaded', initPlan);
+        } else {
+            initPlan();
+        }
     </script>
 </body>
 </html>

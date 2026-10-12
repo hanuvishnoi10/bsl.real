@@ -1,0 +1,4 @@
+node_modules/
+.env
+data/orders.json
+data/orders.csv

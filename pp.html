@@ -26,9 +26,13 @@
             position: sticky;
             top: 0;
             background: rgba(10, 10, 10, 0.85);
+            -webkit-backdrop-filter: blur(12px);
             backdrop-filter: blur(12px);
             border-bottom: 1px solid #222;
             padding: 16px 24px;
+            padding-top: max(16px, env(safe-area-inset-top));
+            padding-left: max(24px, env(safe-area-inset-left));
+            padding-right: max(24px, env(safe-area-inset-right));
             display: flex;
             align-items: center;
             justify-content: space-between;
