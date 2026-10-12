@@ -185,25 +185,34 @@ function isUserAuthenticated(req) {
     return false;
 }
 
+process.on('uncaughtException', (err) => {
+    console.error('🛡️ Uncaught Exception prevented crash:', err.message);
+});
+
+process.on('unhandledRejection', (reason) => {
+    console.error('🛡️ Unhandled Rejection prevented crash:', reason);
+});
+
 const server = http.createServer(async (req, res) => {
-    // Enterprise Security Headers
-    res.setHeader('X-Content-Type-Options', 'nosniff');
-    res.setHeader('X-Frame-Options', 'DENY');
-    res.setHeader('X-XSS-Protection', '1; mode=block');
-    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    try {
+        // Enterprise Security Headers
+        res.setHeader('X-Content-Type-Options', 'nosniff');
+        res.setHeader('X-Frame-Options', 'DENY');
+        res.setHeader('X-XSS-Protection', '1; mode=block');
+        res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
 
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
-    if (req.method === 'OPTIONS') {
-        res.writeHead(204);
-        res.end();
-        return;
-    }
+        if (req.method === 'OPTIONS') {
+            res.writeHead(204);
+            res.end();
+            return;
+        }
 
-    const urlObj = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
-    let pathname = decodeURIComponent(urlObj.pathname);
+        const urlObj = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
+        let pathname = decodeURIComponent(urlObj.pathname);
 
     // ==========================================
     // RAZORPAY API ENDPOINTS
@@ -588,14 +597,23 @@ const server = http.createServer(async (req, res) => {
         filePath = filePath + '.html';
     }
 
-    if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
-        const ext = path.extname(filePath).toLowerCase();
-        const contentType = MIME_TYPES[ext] || 'application/octet-stream';
-        res.writeHead(200, { 'Content-Type': contentType });
-        fs.createReadStream(filePath).pipe(res);
-    } else {
-        res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
-        res.end(`404 Not Found: ${pathname}`);
+        if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+            const ext = path.extname(filePath).toLowerCase();
+            const contentType = MIME_TYPES[ext] || 'application/octet-stream';
+            res.writeHead(200, { 'Content-Type': contentType });
+            fs.createReadStream(filePath).pipe(res);
+        } else {
+            res.writeHead(404, { 'Content-Type': 'application/json; charset=utf-8' });
+            res.end(JSON.stringify({ error: `404 Not Found: ${pathname}` }));
+        }
+    } catch (criticalErr) {
+        console.error('🛡️ Unhandled server error on route:', req.url, criticalErr);
+        if (!res.headersSent) {
+            res.writeHead(500, { 'Content-Type': 'application/json; charset=utf-8' });
+            res.end(JSON.stringify({ success: false, error: 'Internal server error' }));
+        } else {
+            res.end();
+        }
     }
 });
 

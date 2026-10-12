@@ -836,7 +836,14 @@
                     body: JSON.stringify({ username, password })
                 });
 
-                const data = await res.json();
+                const rawText = await res.text();
+                let data = null;
+                try {
+                    data = rawText ? JSON.parse(rawText) : {};
+                } catch (parseErr) {
+                    throw new Error('Server returned an empty or invalid response. Please ensure the backend server is running on http://localhost:3000');
+                }
+
                 if (res.ok && data.success) {
                     // Wipe input values from memory
                     document.getElementById('adminUser').value = '';
@@ -846,14 +853,17 @@
                     if (data.locked && data.retryAfter) {
                         startLockoutCountdown(data.retryAfter);
                     } else {
-                        errorMsg.innerText = data.error || 'Invalid credentials';
+                        errorMsg.innerText = data.error || (res.status === 404 ? 'Login endpoint not found. Please access Skyshot via http://localhost:3000/skyshot' : 'Invalid credentials');
                         errorBox.style.display = 'flex';
                         document.getElementById('adminPass').value = '';
                         document.getElementById('adminPass').focus();
                     }
                 }
             } catch (err) {
-                errorMsg.innerText = 'Network error during sign in: ' + err.message;
+                const friendlyMsg = (err.message && (err.message.includes('JSON') || err.message.includes('fetch')))
+                    ? 'Cannot reach server. Please make sure the server is running on http://localhost:3000'
+                    : err.message;
+                errorMsg.innerText = 'Network error during sign in: ' + friendlyMsg;
                 errorBox.style.display = 'flex';
             } finally {
                 if (!lockoutTimer) {
@@ -901,7 +911,8 @@
         async function checkInitialSession() {
             try {
                 const res = await fetch('/api/admin/check-session');
-                const data = await res.json();
+                const raw = await res.text();
+                const data = raw ? JSON.parse(raw) : {};
                 if (data.authenticated) {
                     showDashboard(data.username);
                 } else {
@@ -920,7 +931,8 @@
                     return;
                 }
                 if (!res.ok) throw new Error('Failed to fetch records');
-                const data = await res.json();
+                const raw = await res.text();
+                const data = raw ? JSON.parse(raw) : {};
                 allOrders = data.orders || [];
                 renderMetrics(allOrders);
                 filterRecords();

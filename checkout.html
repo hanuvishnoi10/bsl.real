@@ -1672,12 +1672,18 @@
                     })
                 });
 
-                if (!orderRes.ok) {
-                    const errObj = await orderRes.json().catch(() => ({}));
-                    throw new Error(errObj.error || 'Server returned status ' + orderRes.status);
+                const rawOrderText = await orderRes.text();
+                let orderData = {};
+                try {
+                    orderData = rawOrderText ? JSON.parse(rawOrderText) : {};
+                } catch (e) {
+                    throw new Error('Cannot reach payment backend. Please ensure the server is running on http://localhost:3000.');
                 }
 
-                const orderData = await orderRes.json();
+                if (!orderRes.ok) {
+                    throw new Error(orderData.error || (orderRes.status === 404 ? 'Payment API not found. Please access checkout via http://localhost:3000' : 'Server returned status ' + orderRes.status));
+                }
+
                 if (!orderData.order_id) {
                     throw new Error('Order creation failed: missing order_id.');
                 }
