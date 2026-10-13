@@ -617,6 +617,29 @@ const server = http.createServer(async (req, res) => {
     }
 });
 
+server.on('error', (err) => {
+    console.error('🚨 HTTP Server Error:', err);
+});
+
+server.on('clientError', (err, socket) => {
+    console.warn('🛡️ Client Socket Error:', err.message);
+    if (socket && !socket.destroyed) {
+        socket.end('HTTP/1.1 400 Bad Request\r\n\r\n');
+    }
+});
+
+process.on('exit', (code) => {
+    console.log(`🚨 Server process exiting with code: ${code}`);
+});
+
+process.on('SIGINT', () => {
+    console.log('🚨 Server received SIGINT');
+});
+
+process.on('SIGTERM', () => {
+    console.log('🚨 Server received SIGTERM');
+});
+
 server.listen(PORT, () => {
     console.log(`\n======================================================`);
     console.log(`🚀 Brazil Sensi Legends Server running with Razorpay!`);
