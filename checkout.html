@@ -15,7 +15,38 @@
     <link rel="stylesheet" href="css/checkout.css">
     <!-- Razorpay Standard Checkout SDK -->
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-    <script src="config.js"></script>
+    <!-- Backend Configuration: Inline fallback ensures window.getApiUrl is immediately available -->
+    <script>
+        (function () {
+            var prodBackend = 'https://bsl-real2.onrender.com';
+            var localBackend = 'http://localhost:5000';
+            var isLocal = Boolean(
+                typeof window !== 'undefined' &&
+                window.location &&
+                (window.location.hostname === 'localhost' ||
+                 window.location.hostname === '127.0.0.1' ||
+                 window.location.hostname === '')
+            );
+            var backendUrl = isLocal
+                ? ((window.location.port === '3000' || window.location.port === '5000') ? '' : localBackend)
+                : prodBackend;
+
+            window.APP_CONFIG = {
+                BACKEND_URL: backendUrl.replace(/\/+$/, ''),
+                PRODUCTION_BACKEND_URL: prodBackend,
+                LOCAL_BACKEND_URL: localBackend
+            };
+
+            window.getApiUrl = function (endpoint) {
+                var clean = endpoint.startsWith('/') ? endpoint : '/' + endpoint;
+                var base = (window.APP_CONFIG && window.APP_CONFIG.BACKEND_URL)
+                    ? window.APP_CONFIG.BACKEND_URL.replace(/\/+$/, '')
+                    : (isLocal ? '' : prodBackend);
+                return base ? (base + clean) : clean;
+            };
+        })();
+    </script>
+    <script src="/config.js" defer></script>
     <style>
         /* Modern Reset & Typography */
         * {
@@ -1605,11 +1636,25 @@
             if (gModal) gModal.classList.add('active');
         }
 
+        function resolveBackendEndpoint(endpoint) {
+            if (typeof window.getApiUrl === 'function') {
+                return window.getApiUrl(endpoint);
+            }
+            var clean = endpoint.startsWith('/') ? endpoint : '/' + endpoint;
+            var isLocal = Boolean(
+                typeof window !== 'undefined' &&
+                window.location &&
+                (window.location.hostname === 'localhost' ||
+                 window.location.hostname === '127.0.0.1' ||
+                 window.location.hostname === '')
+            );
+            var base = isLocal ? '' : 'https://bsl-real2.onrender.com';
+            return base ? (base + clean) : clean;
+        }
+
         async function reportFailureToServer(data) {
             try {
-                const failUrl = (typeof window.getApiUrl === 'function') 
-                    ? window.getApiUrl('/api/record-failure') 
-                    : '/api/record-failure';
+                const failUrl = resolveBackendEndpoint('/api/record-failure');
                 await fetch(failUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1655,9 +1700,7 @@
                 const p = plans[currentPlan];
 
                 // Step 1: Create Order via Backend POST /api/create-order
-                const createOrderUrl = (typeof window.getApiUrl === 'function') 
-                    ? window.getApiUrl('/api/create-order') 
-                    : '/api/create-order';
+                const createOrderUrl = resolveBackendEndpoint('/api/create-order');
 
                 let orderRes;
                 try {
@@ -1673,13 +1716,18 @@
                     });
                 } catch (netErr) {
                     console.error('Network error connecting to payment backend:', netErr);
-                    throw new Error('Unable to connect to the payment server. Please verify your internet connection or backend deployment.');
+                    throw new Error('Unable to connect to payment server at ' + createOrderUrl + '. Please check your internet connection.');
                 }
 
                 const rawOrderText = await orderRes.text();
+                if (!rawOrderText || !rawOrderText.trim()) {
+                    console.error('Payment server returned an empty response (Content-Length: 0). Endpoint:', createOrderUrl);
+                    throw new Error('Payment server returned an empty response. Please verify backend service at https://bsl-real2.onrender.com.');
+                }
+
                 let orderData = null;
                 try {
-                    orderData = (rawOrderText && rawOrderText.trim()) ? JSON.parse(rawOrderText) : null;
+                    orderData = JSON.parse(rawOrderText);
                 } catch (jsonErr) {
                     console.error('Failed to parse backend response as JSON:', rawOrderText);
                     throw new Error('Payment server returned an unreadable response. Please check server deployment.');
@@ -1689,7 +1737,7 @@
                     const serverMsg = (orderData && orderData.error)
                         ? orderData.error
                         : (orderRes.status === 404
-                            ? 'Payment endpoint not found (404). Please ensure the backend URL is properly configured in config.js.'
+                            ? 'Payment endpoint not found (404) at ' + createOrderUrl + '. Please verify backend route configuration.'
                             : `Payment server error (status ${orderRes.status}).`);
                     throw new Error(serverMsg);
                 }
@@ -1800,9 +1848,7 @@
             showPaymentMessage('Verifying payment signature with Razorpay...', 'info');
 
             try {
-                const verifyUrl = (typeof window.getApiUrl === 'function') 
-                    ? window.getApiUrl('/api/verify-payment') 
-                    : '/api/verify-payment';
+                const verifyUrl = resolveBackendEndpoint('/api/verify-payment');
 
                 let verifyRes;
                 try {
@@ -1821,9 +1867,14 @@
                 }
 
                 const rawVerifyText = await verifyRes.text();
+                if (!rawVerifyText || !rawVerifyText.trim()) {
+                    console.error('Verify endpoint returned empty response:', verifyUrl);
+                    throw new Error('Payment verification server returned an empty response.');
+                }
+
                 let verifyData = {};
                 try {
-                    verifyData = (rawVerifyText && rawVerifyText.trim()) ? JSON.parse(rawVerifyText) : {};
+                    verifyData = JSON.parse(rawVerifyText);
                 } catch (parseErr) {
                     console.error('Invalid response from verify-payment:', rawVerifyText);
                     throw new Error('Payment verification server returned an unreadable response.');
