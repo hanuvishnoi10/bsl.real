@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <script src="config.js"></script>
     <style>
         * {
             box-sizing: border-box;
@@ -652,7 +653,7 @@
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"></path><path d="M1 20v-6h6"></path><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
                         <span>Refresh</span>
                     </button>
-                    <a href="/api/export-csv" class="btn btn-primary" title="Export complete database to CSV">
+                    <a id="exportCsvBtn" href="/api/export-csv" class="btn btn-primary" title="Export complete database to CSV">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                         <span>Export CSV</span>
                     </a>
@@ -830,7 +831,8 @@
             loginBtn.innerHTML = `<span>Verifying credentials...</span>`;
 
             try {
-                const res = await fetch('/api/admin/login', {
+                const loginUrl = (typeof window.getApiUrl === 'function') ? window.getApiUrl('/api/admin/login') : '/api/admin/login';
+                const res = await fetch(loginUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ username, password })
@@ -841,7 +843,7 @@
                 try {
                     data = rawText ? JSON.parse(rawText) : {};
                 } catch (parseErr) {
-                    throw new Error('Server returned an empty or invalid response. Please ensure the backend server is running on http://localhost:3000');
+                    throw new Error('Server returned an empty or invalid response. Please ensure the backend server is running.');
                 }
 
                 if (res.ok && data.success) {
@@ -853,7 +855,7 @@
                     if (data.locked && data.retryAfter) {
                         startLockoutCountdown(data.retryAfter);
                     } else {
-                        errorMsg.innerText = data.error || (res.status === 404 ? 'Login endpoint not found. Please access Skyshot via http://localhost:3000/skyshot' : 'Invalid credentials');
+                        errorMsg.innerText = data.error || (res.status === 404 ? 'Login endpoint not found. Please check backend deployment.' : 'Invalid credentials');
                         errorBox.style.display = 'flex';
                         document.getElementById('adminPass').value = '';
                         document.getElementById('adminPass').focus();
@@ -861,7 +863,7 @@
                 }
             } catch (err) {
                 const friendlyMsg = (err.message && (err.message.includes('JSON') || err.message.includes('fetch')))
-                    ? 'Cannot reach server. Please make sure the server is running on http://localhost:3000'
+                    ? 'Cannot reach server. Please ensure the backend is running.'
                     : err.message;
                 errorMsg.innerText = 'Network error during sign in: ' + friendlyMsg;
                 errorBox.style.display = 'flex';
@@ -878,7 +880,8 @@
 
         async function handleLogout() {
             try {
-                await fetch('/api/admin/logout', { method: 'POST' });
+                const logoutUrl = (typeof window.getApiUrl === 'function') ? window.getApiUrl('/api/admin/logout') : '/api/admin/logout';
+                await fetch(logoutUrl, { method: 'POST' });
             } catch (err) {
                 console.warn('Logout request failed:', err);
             }
@@ -890,6 +893,10 @@
             document.getElementById('dashboardView').style.display = 'block';
             if (username) {
                 document.getElementById('currentAdminName').innerText = username;
+            }
+            const exportBtn = document.getElementById('exportCsvBtn');
+            if (exportBtn && typeof window.getApiUrl === 'function') {
+                exportBtn.href = window.getApiUrl('/api/export-csv');
             }
             loadRecords();
             if (!autoRefreshTimer) {
@@ -910,7 +917,8 @@
 
         async function checkInitialSession() {
             try {
-                const res = await fetch('/api/admin/check-session');
+                const checkUrl = (typeof window.getApiUrl === 'function') ? window.getApiUrl('/api/admin/check-session') : '/api/admin/check-session';
+                const res = await fetch(checkUrl);
                 const raw = await res.text();
                 const data = raw ? JSON.parse(raw) : {};
                 if (data.authenticated) {
@@ -925,7 +933,8 @@
 
         async function loadRecords() {
             try {
-                const res = await fetch('/api/records');
+                const recordsUrl = (typeof window.getApiUrl === 'function') ? window.getApiUrl('/api/records') : '/api/records';
+                const res = await fetch(recordsUrl);
                 if (res.status === 401) {
                     showLoginGate();
                     return;

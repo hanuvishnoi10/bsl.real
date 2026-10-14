@@ -215,8 +215,22 @@ const server = http.createServer(async (req, res) => {
         let pathname = decodeURIComponent(urlObj.pathname);
 
     // ==========================================
-    // RAZORPAY API ENDPOINTS
+    // HEALTH CHECK & RAZORPAY API ENDPOINTS
     // ==========================================
+
+    // Health check endpoint
+    if (req.method === 'GET' && (pathname === '/health' || pathname === '/api/health')) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        const key_id = (process.env.RAZORPAY_KEY_ID || '').trim();
+        res.end(JSON.stringify({
+            status: 'ok',
+            timestamp: new Date().toISOString(),
+            service: 'brazil-sensi-legends-root-server',
+            razorpay_configured: Boolean(key_id && process.env.RAZORPAY_KEY_SECRET),
+            razorpay_mode: key_id.startsWith('rzp_live') ? 'live' : (key_id.startsWith('rzp_test') ? 'test' : 'unconfigured')
+        }));
+        return;
+    }
 
     // 1. GET /api/get-key
     if (req.method === 'GET' && pathname === '/api/get-key') {
@@ -231,34 +245,49 @@ const server = http.createServer(async (req, res) => {
     if (req.method === 'POST' && pathname === '/api/create-order') {
         try {
             const body = await parseJsonBody(req);
-            const amount = parseInt(body.amount, 10);
-            const currency = body.currency || 'INR';
-            const receipt = body.receipt || `rcpt_${Date.now()}`;
             const notes = body.notes || {};
+            const customerName = (body.name || notes.name || '').trim();
+            const customerEmail = (body.email || notes.email || '').trim();
+            const rawPhone = (body.phone || notes.phone || '').trim();
+            const cleanPhone = rawPhone.replace(/[^0-9]/g, '');
+            const customerPhone = cleanPhone;
 
-            // Validate amount >= 100 paise
-            if (!amount || isNaN(amount) || amount < 100) {
+            // Validate name
+            if (!customerName || customerName.length < 2) {
                 res.writeHead(400, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({
-                    error: 'Amount is required and must be at least 100 paise'
-                }));
+                res.end(JSON.stringify({ error: 'Customer name is required (minimum 2 characters).' }));
                 return;
             }
 
-            const razorpay = getRazorpayInstance();
-            if (!razorpay) {
-                res.writeHead(500, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({
-                    error: 'Razorpay credentials not configured on server'
-                }));
+            // Validate phone
+            if (!cleanPhone || cleanPhone.length < 10) {
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'A valid 10-digit phone/WhatsApp number is required.' }));
                 return;
             }
 
-            const customerName = body.name || notes.name || '';
-            const customerEmail = body.email || notes.email || '';
-            const customerPhone = body.phone || notes.phone || '';
-            const planKey = body.plan || notes.plan || 'legends';
-            const planName = body.plan_name || notes.plan_name || (planKey === 'elite' ? 'PRIME PLAN' : 'VIP PLAN');
+            // Server-side price calculation
+            const planKey = (body.plan || notes.plan || 'legends').toLowerCase().trim();
+            let amount = 39900; // default ₹399 VIP
+            let planName = 'VIP PLAN';
+            let canonicalPlan = 'legends';
+
+            if (planKey === 'elite' || planKey === 'prime' || planKey === '699') {
+                amount = 69900; // ₹699 Prime
+                planName = 'PRIME PLAN';
+                canonicalPlan = 'elite';
+            } else if (planKey === 'legends' || planKey === 'vip' || planKey === '399') {
+                amount = 39900;
+                planName = 'VIP PLAN';
+                canonicalPlan = 'legends';
+            } else {
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'Invalid plan selected.' }));
+                return;
+            }
+
+            const currency = 'INR';
+            const receipt = body.receipt || `rcpt_${Date.now()}`;
 
             const options = {
                 amount: amount,
@@ -350,8 +379,12 @@ const server = http.createServer(async (req, res) => {
                 .update(`${orderId}|${paymentId}`)
                 .digest('hex');
 
-            // Compare generated signature with razorpay_signature
-            if (generatedSignature === signature) {
+            // Timing-safe comparison of HMAC signature
+            const genBuf = Buffer.from(generatedSignature, 'utf-8');
+            const sigBuf = Buffer.from(signature, 'utf-8');
+            const isMatch = (genBuf.length === sigBuf.length) && crypto.timingSafeEqual(genBuf, sigBuf);
+
+            if (isMatch) {
                 // Update customer order record to SUCCESS
                 recordsManager.updateOrderStatus(orderId, {
                     status: 'SUCCESS',

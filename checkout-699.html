@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="css/checkout.css">
     <!-- Razorpay Standard Checkout SDK -->
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script src="config.js"></script>
     <style>
         /* Modern Reset & Typography */
         * {
@@ -1606,7 +1607,10 @@
 
         async function reportFailureToServer(data) {
             try {
-                await fetch('/api/record-failure', {
+                const failUrl = (typeof window.getApiUrl === 'function') 
+                    ? window.getApiUrl('/api/record-failure') 
+                    : '/api/record-failure';
+                await fetch(failUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
@@ -1649,43 +1653,49 @@
 
             try {
                 const p = plans[currentPlan];
-                const amountInPaise = p.priceNum * 100; // e.g. 39900 or 69900
 
                 // Step 1: Create Order via Backend POST /api/create-order
-                const orderRes = await fetch('/api/create-order', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        amount: amountInPaise,
-                        currency: 'INR',
-                        receipt: 'rcpt_' + Date.now(),
-                        name: userName,
-                        phone: userPhone,
-                        plan: currentPlan,
-                        plan_name: p.name,
-                        notes: {
-                            plan: currentPlan,
-                            plan_name: p.name,
+                const createOrderUrl = (typeof window.getApiUrl === 'function') 
+                    ? window.getApiUrl('/api/create-order') 
+                    : '/api/create-order';
+
+                let orderRes;
+                try {
+                    orderRes = await fetch(createOrderUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
                             name: userName,
-                            phone: userPhone
-                        }
-                    })
-                });
+                            phone: userPhone,
+                            plan: currentPlan,
+                            plan_name: p.name
+                        })
+                    });
+                } catch (netErr) {
+                    console.error('Network error connecting to payment backend:', netErr);
+                    throw new Error('Unable to connect to the payment server. Please verify your internet connection or backend deployment.');
+                }
 
                 const rawOrderText = await orderRes.text();
-                let orderData = {};
+                let orderData = null;
                 try {
-                    orderData = rawOrderText ? JSON.parse(rawOrderText) : {};
-                } catch (e) {
-                    throw new Error('Cannot reach payment backend. Please ensure the server is running on http://localhost:3000.');
+                    orderData = (rawOrderText && rawOrderText.trim()) ? JSON.parse(rawOrderText) : null;
+                } catch (jsonErr) {
+                    console.error('Failed to parse backend response as JSON:', rawOrderText);
+                    throw new Error('Payment server returned an unreadable response. Please check server deployment.');
                 }
 
                 if (!orderRes.ok) {
-                    throw new Error(orderData.error || (orderRes.status === 404 ? 'Payment API not found. Please access checkout via http://localhost:3000' : 'Server returned status ' + orderRes.status));
+                    const serverMsg = (orderData && orderData.error)
+                        ? orderData.error
+                        : (orderRes.status === 404
+                            ? 'Payment endpoint not found (404). Please ensure the backend URL is properly configured in config.js.'
+                            : `Payment server error (status ${orderRes.status}).`);
+                    throw new Error(serverMsg);
                 }
 
-                if (!orderData.order_id) {
-                    throw new Error('Order creation failed: missing order_id.');
+                if (!orderData || !orderData.order_id) {
+                    throw new Error('Order creation failed: missing order_id from payment server.');
                 }
 
                 activeOrderId = orderData.order_id;
@@ -1790,17 +1800,34 @@
             showPaymentMessage('Verifying payment signature with Razorpay...', 'info');
 
             try {
-                const verifyRes = await fetch('/api/verify-payment', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        razorpay_order_id: paymentResponse.razorpay_order_id,
-                        razorpay_payment_id: paymentResponse.razorpay_payment_id,
-                        razorpay_signature: paymentResponse.razorpay_signature
-                    })
-                });
+                const verifyUrl = (typeof window.getApiUrl === 'function') 
+                    ? window.getApiUrl('/api/verify-payment') 
+                    : '/api/verify-payment';
 
-                const verifyData = await verifyRes.json().catch(() => ({}));
+                let verifyRes;
+                try {
+                    verifyRes = await fetch(verifyUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            razorpay_order_id: paymentResponse.razorpay_order_id,
+                            razorpay_payment_id: paymentResponse.razorpay_payment_id,
+                            razorpay_signature: paymentResponse.razorpay_signature
+                        })
+                    });
+                } catch (netErr) {
+                    console.error('Network error during payment verification:', netErr);
+                    throw new Error('Network error verifying payment with server. Reference Payment ID: ' + paymentResponse.razorpay_payment_id);
+                }
+
+                const rawVerifyText = await verifyRes.text();
+                let verifyData = {};
+                try {
+                    verifyData = (rawVerifyText && rawVerifyText.trim()) ? JSON.parse(rawVerifyText) : {};
+                } catch (parseErr) {
+                    console.error('Invalid response from verify-payment:', rawVerifyText);
+                    throw new Error('Payment verification server returned an unreadable response.');
+                }
 
                 if (!verifyRes.ok || !verifyData.success) {
                     throw new Error(verifyData.error || 'Payment signature verification failed.');
