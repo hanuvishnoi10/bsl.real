@@ -8,7 +8,44 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-    <script src="config.js"></script>
+    <!-- Backend Configuration: Inline fallback ensures window.getApiUrl is immediately available -->
+    <script>
+        (function () {
+            var prodBackend = 'https://bsl-real2.onrender.com';
+            var localBackend = 'http://localhost:5000';
+            var isLocal = Boolean(
+                typeof window !== 'undefined' &&
+                window.location &&
+                (window.location.hostname === 'localhost' ||
+                 window.location.hostname === '127.0.0.1' ||
+                 window.location.hostname === '')
+            );
+            var forceProd = Boolean(
+                typeof window !== 'undefined' &&
+                window.location &&
+                (new URLSearchParams(window.location.search).get('prod') === '1' ||
+                 new URLSearchParams(window.location.search).get('backend') === 'prod')
+            );
+            var backendUrl = (forceProd || !isLocal)
+                ? prodBackend
+                : ((window.location.port === '3000' || window.location.port === '5000') ? '' : localBackend);
+
+            window.APP_CONFIG = {
+                BACKEND_URL: backendUrl.replace(/\/+$/, ''),
+                PRODUCTION_BACKEND_URL: prodBackend,
+                LOCAL_BACKEND_URL: localBackend
+            };
+
+            window.getApiUrl = function (endpoint) {
+                var clean = endpoint.startsWith('/') ? endpoint : '/' + endpoint;
+                var base = (window.APP_CONFIG && window.APP_CONFIG.BACKEND_URL)
+                    ? window.APP_CONFIG.BACKEND_URL.replace(/\/+$/, '')
+                    : (isLocal ? '' : prodBackend);
+                return base ? (base + clean) : clean;
+            };
+        })();
+    </script>
+    <script src="/config.js" defer></script>
     <style>
         * {
             box-sizing: border-box;
@@ -762,6 +799,78 @@
         let allOrders = [];
         let autoRefreshTimer = null;
 
+        const AUTH_TOKEN_KEY = 'bsl_skyshot_token';
+        const AUTH_USER_KEY = 'bsl_skyshot_user';
+
+        function getStoredToken() {
+            try {
+                return localStorage.getItem(AUTH_TOKEN_KEY) || sessionStorage.getItem(AUTH_TOKEN_KEY) || '';
+            } catch (_) {
+                return '';
+            }
+        }
+
+        function setStoredToken(token, user) {
+            try {
+                if (token) {
+                    localStorage.setItem(AUTH_TOKEN_KEY, token);
+                    sessionStorage.setItem(AUTH_TOKEN_KEY, token);
+                }
+                if (user) {
+                    localStorage.setItem(AUTH_USER_KEY, user);
+                    sessionStorage.setItem(AUTH_USER_KEY, user);
+                }
+            } catch (_) {}
+        }
+
+        function clearStoredToken() {
+            try {
+                localStorage.removeItem(AUTH_TOKEN_KEY);
+                localStorage.removeItem(AUTH_USER_KEY);
+                sessionStorage.removeItem(AUTH_TOKEN_KEY);
+                sessionStorage.removeItem(AUTH_USER_KEY);
+            } catch (_) {}
+        }
+
+        function getStoredUser() {
+            try {
+                return localStorage.getItem(AUTH_USER_KEY) || sessionStorage.getItem(AUTH_USER_KEY) || '';
+            } catch (_) {
+                return '';
+            }
+        }
+
+        function resolveBackendEndpoint(endpoint) {
+            if (typeof window.getApiUrl === 'function') {
+                return window.getApiUrl(endpoint);
+            }
+            var clean = endpoint.startsWith('/') ? endpoint : '/' + endpoint;
+            var isLocal = Boolean(
+                typeof window !== 'undefined' &&
+                window.location &&
+                (window.location.hostname === 'localhost' ||
+                 window.location.hostname === '127.0.0.1' ||
+                 window.location.hostname === '')
+            );
+            var forceProd = Boolean(
+                typeof window !== 'undefined' &&
+                window.location &&
+                (new URLSearchParams(window.location.search).get('prod') === '1' ||
+                 new URLSearchParams(window.location.search).get('backend') === 'prod')
+            );
+            var base = (forceProd || !isLocal) ? 'https://bsl-real2.onrender.com' : '';
+            return base ? (base + clean) : clean;
+        }
+
+        function getAuthHeaders(extraHeaders = {}) {
+            const token = getStoredToken();
+            const headers = { ...extraHeaders };
+            if (token) {
+                headers['Authorization'] = 'Bearer ' + token;
+            }
+            return headers;
+        }
+
         function togglePasswordVisibility() {
             const passInput = document.getElementById('adminPass');
             const eyeIcon = document.getElementById('pwEyeIcon');
@@ -831,22 +940,27 @@
             loginBtn.innerHTML = `<span>Verifying credentials...</span>`;
 
             try {
-                const loginUrl = (typeof window.getApiUrl === 'function') ? window.getApiUrl('/api/admin/login') : '/api/admin/login';
+                const loginUrl = resolveBackendEndpoint('/api/admin/login');
                 const res = await fetch(loginUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
                     body: JSON.stringify({ username, password })
                 });
 
                 const rawText = await res.text();
                 let data = null;
                 try {
-                    data = rawText ? JSON.parse(rawText) : {};
+                    data = (rawText && rawText.trim()) ? JSON.parse(rawText) : {};
                 } catch (parseErr) {
                     throw new Error('Server returned an empty or invalid response. Please ensure the backend server is running.');
                 }
 
                 if (res.ok && data.success) {
+                    // Save token and username to persist across page refresh
+                    if (data.token) {
+                        setStoredToken(data.token, data.username || username);
+                    }
                     // Wipe input values from memory
                     document.getElementById('adminUser').value = '';
                     document.getElementById('adminPass').value = '';
@@ -880,11 +994,16 @@
 
         async function handleLogout() {
             try {
-                const logoutUrl = (typeof window.getApiUrl === 'function') ? window.getApiUrl('/api/admin/logout') : '/api/admin/logout';
-                await fetch(logoutUrl, { method: 'POST' });
+                const logoutUrl = resolveBackendEndpoint('/api/admin/logout');
+                await fetch(logoutUrl, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    credentials: 'include'
+                });
             } catch (err) {
                 console.warn('Logout request failed:', err);
             }
+            clearStoredToken();
             showLoginGate();
         }
 
@@ -895,12 +1014,48 @@
                 document.getElementById('currentAdminName').innerText = username;
             }
             const exportBtn = document.getElementById('exportCsvBtn');
-            if (exportBtn && typeof window.getApiUrl === 'function') {
-                exportBtn.href = window.getApiUrl('/api/export-csv');
+            if (exportBtn) {
+                const token = getStoredToken();
+                const tokenQuery = token ? ('?token=' + encodeURIComponent(token)) : '';
+                exportBtn.href = resolveBackendEndpoint('/api/export-csv' + tokenQuery);
+                exportBtn.onclick = async function(e) {
+                    e.preventDefault();
+                    await downloadCsvWithAuth();
+                };
             }
             loadRecords();
             if (!autoRefreshTimer) {
                 autoRefreshTimer = setInterval(loadRecords, 15000);
+            }
+        }
+
+        async function downloadCsvWithAuth() {
+            try {
+                const token = getStoredToken();
+                const tokenQuery = token ? ('?token=' + encodeURIComponent(token)) : '';
+                const exportUrl = resolveBackendEndpoint('/api/export-csv' + tokenQuery);
+                const res = await fetch(exportUrl, {
+                    headers: getAuthHeaders(),
+                    credentials: 'include'
+                });
+                if (res.status === 401) {
+                    clearStoredToken();
+                    showLoginGate();
+                    return;
+                }
+                if (!res.ok) throw new Error('Export failed with status ' + res.status);
+                const blob = await res.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'bsl_customer_records.csv';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+            } catch (err) {
+                console.error('Download CSV error:', err);
+                alert('Could not download CSV: ' + err.message);
             }
         }
 
@@ -916,32 +1071,61 @@
         }
 
         async function checkInitialSession() {
+            const token = getStoredToken();
+            const storedUser = getStoredUser();
+
+            // If no token stored, present the login gate
+            if (!token) {
+                showLoginGate();
+                return;
+            }
+
             try {
-                const checkUrl = (typeof window.getApiUrl === 'function') ? window.getApiUrl('/api/admin/check-session') : '/api/admin/check-session';
-                const res = await fetch(checkUrl);
+                const checkUrl = resolveBackendEndpoint('/api/admin/check-session');
+                const res = await fetch(checkUrl, {
+                    headers: getAuthHeaders(),
+                    credentials: 'include'
+                });
+                if (res.status === 401) {
+                    clearStoredToken();
+                    showLoginGate();
+                    return;
+                }
                 const raw = await res.text();
-                const data = raw ? JSON.parse(raw) : {};
+                const data = (raw && raw.trim()) ? JSON.parse(raw) : {};
                 if (data.authenticated) {
-                    showDashboard(data.username);
+                    showDashboard(data.username || storedUser);
                 } else {
+                    clearStoredToken();
                     showLoginGate();
                 }
             } catch (err) {
-                showLoginGate();
+                // If temporary network warning occurred, keep dashboard active with stored token
+                console.warn('Session check network warning:', err);
+                if (token) {
+                    showDashboard(storedUser || 'Admin');
+                } else {
+                    showLoginGate();
+                }
             }
         }
 
         async function loadRecords() {
             try {
-                const recordsUrl = (typeof window.getApiUrl === 'function') ? window.getApiUrl('/api/records') : '/api/records';
-                const res = await fetch(recordsUrl);
+                const recordsUrl = resolveBackendEndpoint('/api/records');
+                const res = await fetch(recordsUrl, {
+                    headers: getAuthHeaders(),
+                    credentials: 'include'
+                });
                 if (res.status === 401) {
+                    console.warn('Records endpoint returned 401: Unauthorized');
+                    clearStoredToken();
                     showLoginGate();
                     return;
                 }
-                if (!res.ok) throw new Error('Failed to fetch records');
+                if (!res.ok) throw new Error('Failed to fetch records (status ' + res.status + ')');
                 const raw = await res.text();
-                const data = raw ? JSON.parse(raw) : {};
+                const data = (raw && raw.trim()) ? JSON.parse(raw) : {};
                 allOrders = data.orders || [];
                 renderMetrics(allOrders);
                 filterRecords();

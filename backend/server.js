@@ -6,6 +6,7 @@ const Razorpay = require('razorpay');
 const recordsManager = require('./records-manager');
 
 const app = express();
+app.set('trust proxy', 1);
 const PORT = process.env.PORT || 5000;
 
 // Initialize order records data store
@@ -217,6 +218,14 @@ function isUserAuthenticated(req) {
         if (sess.expiresAt > Date.now()) return true;
         activeSessions.delete(cookieToken);
     }
+
+    const queryToken = req.query?.token;
+    if (queryToken && activeSessions.has(queryToken)) {
+        const sess = activeSessions.get(queryToken);
+        if (sess.expiresAt > Date.now()) return true;
+        activeSessions.delete(queryToken);
+    }
+
     return false;
 }
 
@@ -507,7 +516,11 @@ app.post('/api/admin/login', (req, res) => {
         if (isUserMatch && isPassMatch) {
             loginAttempts.delete(clientIp);
             const session = createAdminSession(username);
-            res.setHeader('Set-Cookie', `skyshot_session=${session.token}; Path=/; HttpOnly; SameSite=Strict; Max-Age=604800`);
+            const isHttps = req.secure || req.headers['x-forwarded-proto'] === 'https';
+            const cookieFlags = isHttps
+                ? 'SameSite=None; Secure; HttpOnly; Path=/; Max-Age=604800'
+                : 'SameSite=Lax; HttpOnly; Path=/; Max-Age=604800';
+            res.setHeader('Set-Cookie', `skyshot_session=${session.token}; ${cookieFlags}`);
             res.setHeader('Cache-Control', 'no-store');
             return res.status(200).json({
                 success: true,
@@ -544,11 +557,20 @@ app.post('/api/admin/login', (req, res) => {
 });
 
 app.post('/api/admin/logout', (req, res) => {
+    const authHeader = req.headers['authorization'];
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+        const token = authHeader.substring(7).trim();
+        activeSessions.delete(token);
+    }
     const cookies = parseCookies(req);
-    const token = cookies['skyshot_session'] || cookies['bsl_admin_session'];
-    if (token) activeSessions.delete(token);
+    const cookieToken = cookies['skyshot_session'] || cookies['bsl_admin_session'];
+    if (cookieToken) activeSessions.delete(cookieToken);
 
-    res.setHeader('Set-Cookie', 'skyshot_session=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT');
+    const isHttps = req.secure || req.headers['x-forwarded-proto'] === 'https';
+    const cookieFlags = isHttps
+        ? 'SameSite=None; Secure; HttpOnly; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT'
+        : 'SameSite=Lax; HttpOnly; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT';
+    res.setHeader('Set-Cookie', `skyshot_session=; ${cookieFlags}`);
     return res.status(200).json({ success: true, message: 'Logged out successfully' });
 });
 

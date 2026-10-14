@@ -174,7 +174,6 @@ function isUserAuthenticated(req) {
         }
     }
 
-    // 2. Check Cookie
     const cookies = parseCookies(req);
     const cookieToken = cookies['skyshot_session'] || cookies['bsl_admin_session'];
     if (cookieToken && activeSessions.has(cookieToken)) {
@@ -182,6 +181,18 @@ function isUserAuthenticated(req) {
         if (sess.expiresAt > Date.now()) return true;
         activeSessions.delete(cookieToken);
     }
+
+    // 3. Check Query parameter token (e.g. for CSV export downloads)
+    try {
+        const parsedUrl = new URL(req.url, 'http://localhost');
+        const queryToken = parsedUrl.searchParams.get('token');
+        if (queryToken && activeSessions.has(queryToken)) {
+            const sess = activeSessions.get(queryToken);
+            if (sess.expiresAt > Date.now()) return true;
+            activeSessions.delete(queryToken);
+        }
+    } catch (_) {}
+
     return false;
 }
 
@@ -482,9 +493,13 @@ const server = http.createServer(async (req, res) => {
             if (isUserMatch && isPassMatch) {
                 resetFailedLogin(clientIp);
                 const session = createAdminSession(username);
+                const isHttps = req.headers['x-forwarded-proto'] === 'https';
+                const cookieFlags = isHttps
+                    ? 'SameSite=None; Secure; HttpOnly; Path=/; Max-Age=604800'
+                    : 'SameSite=Lax; HttpOnly; Path=/; Max-Age=604800';
                 res.writeHead(200, {
                     'Content-Type': 'application/json',
-                    'Set-Cookie': `skyshot_session=${session.token}; Path=/; HttpOnly; SameSite=Strict; Max-Age=604800`,
+                    'Set-Cookie': `skyshot_session=${session.token}; ${cookieFlags}`,
                     'Cache-Control': 'no-store'
                 });
                 res.end(JSON.stringify({
@@ -531,13 +546,22 @@ const server = http.createServer(async (req, res) => {
 
     // 6. POST /api/admin/logout
     if (req.method === 'POST' && pathname === '/api/admin/logout') {
+        const authHeader = req.headers['authorization'];
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+            const token = authHeader.substring(7).trim();
+            activeSessions.delete(token);
+        }
         const cookies = parseCookies(req);
         const token = cookies['skyshot_session'] || cookies['bsl_admin_session'];
         if (token) activeSessions.delete(token);
 
+        const isHttps = req.headers['x-forwarded-proto'] === 'https';
+        const cookieFlags = isHttps
+            ? 'SameSite=None; Secure; HttpOnly; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT'
+            : 'SameSite=Lax; HttpOnly; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT';
         res.writeHead(200, {
             'Content-Type': 'application/json',
-            'Set-Cookie': 'skyshot_session=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT'
+            'Set-Cookie': `skyshot_session=; ${cookieFlags}`
         });
         res.end(JSON.stringify({ success: true, message: 'Logged out successfully' }));
         return;
