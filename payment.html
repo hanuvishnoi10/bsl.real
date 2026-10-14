@@ -27,9 +27,15 @@
                  window.location.hostname === '127.0.0.1' ||
                  window.location.hostname === '')
             );
-            var backendUrl = isLocal
-                ? ((window.location.port === '3000' || window.location.port === '5000') ? '' : localBackend)
-                : prodBackend;
+            var forceProd = Boolean(
+                typeof window !== 'undefined' &&
+                window.location &&
+                (new URLSearchParams(window.location.search).get('prod') === '1' ||
+                 new URLSearchParams(window.location.search).get('backend') === 'prod')
+            );
+            var backendUrl = (forceProd || !isLocal)
+                ? prodBackend
+                : ((window.location.port === '3000' || window.location.port === '5000') ? '' : localBackend);
 
             window.APP_CONFIG = {
                 BACKEND_URL: backendUrl.replace(/\/+$/, ''),
@@ -1648,7 +1654,13 @@
                  window.location.hostname === '127.0.0.1' ||
                  window.location.hostname === '')
             );
-            var base = isLocal ? '' : 'https://bsl-real2.onrender.com';
+            var forceProd = Boolean(
+                typeof window !== 'undefined' &&
+                window.location &&
+                (new URLSearchParams(window.location.search).get('prod') === '1' ||
+                 new URLSearchParams(window.location.search).get('backend') === 'prod')
+            );
+            var base = (forceProd || !isLocal) ? 'https://bsl-real2.onrender.com' : '';
             return base ? (base + clean) : clean;
         }
 

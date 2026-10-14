@@ -22,16 +22,23 @@
          window.location.hostname === '')
     );
 
+    const forceProd = Boolean(
+        typeof window !== 'undefined' &&
+        window.location &&
+        (new URLSearchParams(window.location.search).get('prod') === '1' ||
+         new URLSearchParams(window.location.search).get('backend') === 'prod')
+    );
+
     let resolvedBackendUrl = '';
     if (INJECTED_BACKEND_URL) {
         resolvedBackendUrl = INJECTED_BACKEND_URL;
-    } else if (isLocalhost) {
+    } else if (forceProd || !isLocalhost) {
+        resolvedBackendUrl = DEFAULT_BACKEND_URL;
+    } else {
         // If served from port 3000 or 5000 on localhost, use relative path or local port
         resolvedBackendUrl = (window.location.port === '3000' || window.location.port === '5000') 
             ? '' 
             : LOCAL_DEV_URL;
-    } else {
-        resolvedBackendUrl = DEFAULT_BACKEND_URL;
     }
 
     window.APP_CONFIG = {
