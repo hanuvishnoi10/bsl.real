@@ -18,7 +18,7 @@
     const INJECTED_BACKEND_URL = '';
 
     // Production backend placeholder URL (replace with your deployed Render Web Service URL)
-    const DEFAULT_BACKEND_URL = 'https://brazilsensilegends-backend.onrender.com';
+    const DEFAULT_BACKEND_URL = 'https://bsl-real2.onrender.com';
 
     // Local development backend URL
     const LOCAL_DEV_URL = 'http://localhost:5000';
@@ -27,8 +27,8 @@
         typeof window !== 'undefined' &&
         window.location &&
         (window.location.hostname === 'localhost' ||
-         window.location.hostname === '127.0.0.1' ||
-         window.location.hostname === '')
+            window.location.hostname === '127.0.0.1' ||
+            window.location.hostname === '')
     );
 
     let resolvedBackendUrl = '';
@@ -36,8 +36,8 @@
         resolvedBackendUrl = INJECTED_BACKEND_URL;
     } else if (isLocalhost) {
         // If served from port 3000 or 5000 on localhost, use relative path or local port
-        resolvedBackendUrl = (window.location.port === '3000' || window.location.port === '5000') 
-            ? '' 
+        resolvedBackendUrl = (window.location.port === '3000' || window.location.port === '5000')
+            ? ''
             : LOCAL_DEV_URL;
     } else {
         resolvedBackendUrl = DEFAULT_BACKEND_URL;
