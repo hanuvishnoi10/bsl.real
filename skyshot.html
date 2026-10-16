@@ -397,25 +397,132 @@
             margin-top: 6px;
         }
 
+        /* Lifetime Status Banner */
+        .lifetime-bar {
+            background: linear-gradient(90deg, rgba(2, 222, 97, 0.08) 0%, rgba(0, 210, 211, 0.06) 100%);
+            border: 1px solid rgba(2, 222, 97, 0.22);
+            border-radius: 12px;
+            padding: 12px 18px;
+            margin-bottom: 22px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .lifetime-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .lifetime-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 11px;
+            border-radius: 6px;
+            background: rgba(2, 222, 97, 0.15);
+            border: 1px solid rgba(2, 222, 97, 0.35);
+            font-size: 11px;
+            font-weight: 700;
+            color: #02de61;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .lifetime-stats-text {
+            font-size: 13px;
+            color: #bbb;
+        }
+        .lifetime-stats-text strong {
+            color: #fff;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .lifetime-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .btn-chip {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #ccc;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+        .btn-chip:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: #fff;
+            border-color: rgba(2, 222, 97, 0.4);
+        }
+        .filter-indicator {
+            background: rgba(2, 222, 97, 0.15);
+            color: #02de61;
+            border: 1px solid rgba(2, 222, 97, 0.3);
+            padding: 4px 9px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
         /* Filter Controls */
         .controls-card {
             background: #111317;
             border: 1px solid rgba(255, 255, 255, 0.07);
             border-radius: 12px;
-            padding: 16px 20px;
-            margin-bottom: 20px;
+            padding: 18px 20px;
+            margin-bottom: 22px;
             display: flex;
-            gap: 14px;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: space-between;
+            flex-direction: column;
+            gap: 16px;
         }
-        .filter-group {
+        .controls-top-row {
             display: flex;
             gap: 12px;
             flex-wrap: wrap;
             align-items: center;
-            flex: 1;
+            justify-content: space-between;
+        }
+        .controls-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .btn-sm {
+            padding: 7px 12px;
+            font-size: 12px;
+        }
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            width: 100%;
+        }
+        .filter-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            min-width: 160px;
+        }
+        .filter-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
         .search-box {
             position: relative;
@@ -450,19 +557,110 @@
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
             color: #ddd;
-            padding: 10px 14px;
+            padding: 9px 12px;
             border-radius: 8px;
             font-size: 13px;
             font-family: inherit;
             outline: none;
             cursor: pointer;
+            transition: border-color 0.2s ease, background 0.2s ease;
+            width: 100%;
         }
         .filter-select:focus {
             border-color: #02de61;
+            background: rgba(255, 255, 255, 0.08);
         }
         .filter-select option {
             background: #111317;
             color: #fff;
+        }
+        .custom-inputs-wrap {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 6px;
+        }
+        .filter-input-date, .filter-input-num {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #fff;
+            padding: 7px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-family: inherit;
+            outline: none;
+            width: 100%;
+            transition: all 0.2s ease;
+            color-scheme: dark;
+        }
+        .filter-input-date:focus, .filter-input-num:focus {
+            border-color: #02de61;
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 10px rgba(2, 222, 97, 0.2);
+        }
+        .custom-sep {
+            color: #777;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+        .filter-chips-container {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            width: 100%;
+        }
+        .filter-chips-list {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .filter-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(2, 222, 97, 0.1);
+            border: 1px solid rgba(2, 222, 97, 0.28);
+            color: #e0e0e0;
+            padding: 3px 9px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .filter-chip strong {
+            color: #02de61;
+        }
+        .filter-chip-remove {
+            background: none;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            font-size: 14px;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            padding: 0 2px;
+            transition: color 0.15s ease;
+        }
+        .filter-chip-remove:hover {
+            color: #ff4757;
+        }
+        .clear-chips-btn {
+            background: none;
+            border: none;
+            color: #ff6b81;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 2px 6px;
+            margin-left: 6px;
+            text-decoration: underline;
+        }
+        .clear-chips-btn:hover {
+            color: #ff4757;
         }
 
         /* Table Card */
@@ -701,6 +899,26 @@
                 </div>
             </header>
 
+            <!-- Lifetime Data Status Banner -->
+            <div class="lifetime-bar">
+                <div class="lifetime-info">
+                    <div class="lifetime-tag">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#02de61" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                        <span>Lifetime Data Saved</span>
+                    </div>
+                    <span class="lifetime-stats-text">
+                        Database Storage: <strong id="lifetimeOrdersCount">0</strong> lifetime records (<strong id="lifetimeRevenueTotal">₹0</strong> revenue) permanently preserved
+                    </span>
+                </div>
+                <div class="lifetime-actions">
+                    <button type="button" class="btn-chip" onclick="resetAllFilters()" title="Reset all filters to show all-time lifetime data">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
+                        <span>Lifetime View</span>
+                    </button>
+                    <span class="filter-indicator" id="filterActiveBadge" style="display:none;">Filtered View</span>
+                </div>
+            </div>
+
             <!-- Metrics Cards -->
             <div class="metrics-grid">
                 <div class="metric-card revenue">
@@ -709,7 +927,7 @@
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00d2d3" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
                     </div>
                     <div class="metric-value" id="metricRevenue">₹0</div>
-                    <div class="metric-sub">From verified successful payments</div>
+                    <div class="metric-sub" id="metricRevenueSub">From verified successful payments</div>
                 </div>
 
                 <div class="metric-card success">
@@ -718,7 +936,7 @@
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#02de61" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
                     </div>
                     <div class="metric-value" id="metricSuccess">0</div>
-                    <div class="metric-sub">Active paying members</div>
+                    <div class="metric-sub" id="metricSuccessSub">Active paying members</div>
                 </div>
 
                 <div class="metric-card failed">
@@ -727,7 +945,7 @@
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ff4757" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
                     </div>
                     <div class="metric-value" id="metricFailed">0</div>
-                    <div class="metric-sub">Pending recovery &amp; support followup</div>
+                    <div class="metric-sub" id="metricFailedSub">Pending recovery &amp; support followup</div>
                 </div>
 
                 <div class="metric-card total">
@@ -736,35 +954,149 @@
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5f27cd" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
                     </div>
                     <div class="metric-value" id="metricTotal">0</div>
-                    <div class="metric-sub">Customer checkout interactions</div>
+                    <div class="metric-sub" id="metricTotalSub">Customer checkout interactions</div>
                 </div>
             </div>
 
-            <!-- Filters -->
+            <!-- Filters Section -->
             <div class="controls-card">
-                <div class="filter-group">
+                <!-- Search & Quick Action Top Row -->
+                <div class="controls-top-row">
                     <div class="search-box">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                        <input type="text" id="searchInput" placeholder="Search by name, email, phone, Order ID, Payment ID..." oninput="filterRecords()">
+                        <input type="text" id="searchInput" placeholder="Search by name, email, phone, Order ID, Payment ID, amount..." oninput="onFilterChange()">
                     </div>
-                    <select class="filter-select" id="statusFilter" onchange="filterRecords()">
-                        <option value="ALL">All Statuses</option>
-                        <option value="SUCCESS">Verified (SUCCESS)</option>
-                        <option value="FAILED">Failed / Closed</option>
-                        <option value="PENDING">Pending</option>
-                    </select>
-                    <select class="filter-select" id="planFilter" onchange="filterRecords()">
-                        <option value="ALL">All Plans</option>
-                        <option value="VIP">VIP Plan (₹399)</option>
-                        <option value="PRIME">Prime Plan (₹699)</option>
-                    </select>
+                    <div class="controls-actions">
+                        <button type="button" class="btn btn-outline btn-sm" onclick="downloadFilteredCsv()" title="Export current filtered view to CSV">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                            <span>Export Filtered CSV</span>
+                        </button>
+                        <button type="button" class="btn btn-outline btn-sm" onclick="resetAllFilters()" title="Reset all filters to default Lifetime view">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
+                            <span>Clear Filters</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filters Grid -->
+                <div class="filters-grid">
+                    <!-- Days Filter -->
+                    <div class="filter-item">
+                        <label for="daysFilter" class="filter-label">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                            <span>Days Filter</span>
+                        </label>
+                        <select class="filter-select" id="daysFilter" onchange="onFilterChange()">
+                            <option value="LIFETIME">📅 Lifetime (All Time Saved)</option>
+                            <option value="TODAY">⚡ Today (Last 24h)</option>
+                            <option value="YESTERDAY">⏮️ Yesterday</option>
+                            <option value="7_DAYS">🗓️ Last 7 Days</option>
+                            <option value="15_DAYS">🗓️ Last 15 Days</option>
+                            <option value="30_DAYS">🗓️ Last 30 Days</option>
+                            <option value="90_DAYS">🗓️ Last 90 Days</option>
+                            <option value="THIS_MONTH">📆 This Month</option>
+                            <option value="CUSTOM">🎯 Custom Days Range...</option>
+                        </select>
+                        <div id="customDaysWrap" class="custom-inputs-wrap" style="display:none;">
+                            <input type="date" id="dateStart" class="filter-input-date" onchange="onFilterChange()" title="Start Date">
+                            <span class="custom-sep">to</span>
+                            <input type="date" id="dateEnd" class="filter-input-date" onchange="onFilterChange()" title="End Date">
+                        </div>
+                    </div>
+
+                    <!-- Money Filter -->
+                    <div class="filter-item">
+                        <label for="moneyFilter" class="filter-label">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                            <span>Money Filter</span>
+                        </label>
+                        <select class="filter-select" id="moneyFilter" onchange="onFilterChange()">
+                            <option value="ALL">💰 All Amounts (Lifetime)</option>
+                            <option value="399">₹399 (VIP Plan)</option>
+                            <option value="699">₹699 (Prime Plan)</option>
+                            <option value="UNDER_500">Under ₹500 (&lt; ₹500)</option>
+                            <option value="500_PLUS">₹500 &amp; Above (≥ ₹500)</option>
+                            <option value="CUSTOM_AMOUNT">🎯 Custom Amount Range...</option>
+                        </select>
+                        <div id="customAmountWrap" class="custom-inputs-wrap" style="display:none;">
+                            <input type="number" id="minAmount" class="filter-input-num" placeholder="Min ₹" min="0" oninput="onFilterChange()">
+                            <span class="custom-sep">-</span>
+                            <input type="number" id="maxAmount" class="filter-input-num" placeholder="Max ₹" min="0" oninput="onFilterChange()">
+                        </div>
+                    </div>
+
+                    <!-- Recent Data Filter -->
+                    <div class="filter-item">
+                        <label for="recentFilter" class="filter-label">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                            <span>Recent Data Filter</span>
+                        </label>
+                        <select class="filter-select" id="recentFilter" onchange="onFilterChange()">
+                            <option value="ALL">♾️ All Lifetime Records</option>
+                            <option value="RECENT_10">🕒 Most Recent 10 Records</option>
+                            <option value="RECENT_25">🕒 Most Recent 25 Records</option>
+                            <option value="RECENT_50">🕒 Most Recent 50 Records</option>
+                            <option value="RECENT_100">🕒 Most Recent 100 Records</option>
+                            <option value="PAST_1H">⚡ Past 1 Hour</option>
+                            <option value="PAST_6H">⏳ Past 6 Hours</option>
+                            <option value="PAST_24H">🕐 Past 24 Hours</option>
+                        </select>
+                    </div>
+
+                    <!-- Sort Order -->
+                    <div class="filter-item">
+                        <label for="sortFilter" class="filter-label">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5h10M11 9h7M11 13h4M3 17l3 3 3-3M6 18V4"></path></svg>
+                            <span>Sort By</span>
+                        </label>
+                        <select class="filter-select" id="sortFilter" onchange="onFilterChange()">
+                            <option value="NEWEST">⏱️ Newest First (Recent)</option>
+                            <option value="OLDEST">⏳ Oldest First</option>
+                            <option value="MONEY_DESC">💵 Amount: High to Low</option>
+                            <option value="MONEY_ASC">💵 Amount: Low to High</option>
+                        </select>
+                    </div>
+
+                    <!-- Status Filter -->
+                    <div class="filter-item">
+                        <label for="statusFilter" class="filter-label">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                            <span>Payment Status</span>
+                        </label>
+                        <select class="filter-select" id="statusFilter" onchange="onFilterChange()">
+                            <option value="ALL">All Statuses</option>
+                            <option value="SUCCESS">Verified (SUCCESS)</option>
+                            <option value="FAILED">Failed / Closed</option>
+                            <option value="PENDING">Pending</option>
+                        </select>
+                    </div>
+
+                    <!-- Plan Filter -->
+                    <div class="filter-item">
+                        <label for="planFilter" class="filter-label">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                            <span>Plan Type</span>
+                        </label>
+                        <select class="filter-select" id="planFilter" onchange="onFilterChange()">
+                            <option value="ALL">All Plans</option>
+                            <option value="VIP">VIP Plan (₹399)</option>
+                            <option value="PRIME">Prime Plan (₹699)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Active Filter Chips Row -->
+                <div class="filter-chips-container" id="filterChipsContainer" style="display:none;">
+                    <span style="font-size:11px; font-weight:700; color:#888; text-transform:uppercase; letter-spacing:0.5px;">Active Filters:</span>
+                    <div class="filter-chips-list" id="filterChipsList"></div>
+                    <button type="button" class="clear-chips-btn" onclick="resetAllFilters()">Reset All</button>
                 </div>
             </div>
 
             <!-- Customer Table -->
             <div class="table-card">
                 <div class="table-header">
-                    <h2>Live Customer Transactions (<span id="recordCount">0</span>)</h2>
+                    <h2>Live Customer Transactions (<span id="recordCount">0</span> of <span id="lifetimeCount">0</span> Lifetime Saved)</h2>
                     <span style="font-size:12px; color:#777;">Auto-syncs every 15s</span>
                 </div>
                 <div class="table-wrap">
@@ -797,10 +1129,12 @@
 
     <script>
         let allOrders = [];
+        let currentFilteredOrders = [];
         let autoRefreshTimer = null;
 
         const AUTH_TOKEN_KEY = 'bsl_skyshot_token';
         const AUTH_USER_KEY = 'bsl_skyshot_user';
+        const SAVED_FILTERS_KEY = 'bsl_skyshot_saved_filters';
 
         function getStoredToken() {
             try {
@@ -1023,6 +1357,7 @@
                     await downloadCsvWithAuth();
                 };
             }
+            loadSavedFilterPreferences();
             loadRecords();
             if (!autoRefreshTimer) {
                 autoRefreshTimer = setInterval(loadRecords, 15000);
@@ -1110,6 +1445,91 @@
             }
         }
 
+        function saveFilterPreferences() {
+            try {
+                const prefs = {
+                    days: document.getElementById('daysFilter')?.value || 'LIFETIME',
+                    dateStart: document.getElementById('dateStart')?.value || '',
+                    dateEnd: document.getElementById('dateEnd')?.value || '',
+                    money: document.getElementById('moneyFilter')?.value || 'ALL',
+                    minAmount: document.getElementById('minAmount')?.value || '',
+                    maxAmount: document.getElementById('maxAmount')?.value || '',
+                    recent: document.getElementById('recentFilter')?.value || 'ALL',
+                    sort: document.getElementById('sortFilter')?.value || 'NEWEST',
+                    status: document.getElementById('statusFilter')?.value || 'ALL',
+                    plan: document.getElementById('planFilter')?.value || 'ALL',
+                    search: document.getElementById('searchInput')?.value || ''
+                };
+                localStorage.setItem(SAVED_FILTERS_KEY, JSON.stringify(prefs));
+            } catch (_) {}
+        }
+
+        function loadSavedFilterPreferences() {
+            try {
+                const raw = localStorage.getItem(SAVED_FILTERS_KEY);
+                if (!raw) return;
+                const prefs = JSON.parse(raw);
+                if (prefs.days && document.getElementById('daysFilter')) document.getElementById('daysFilter').value = prefs.days;
+                if (prefs.dateStart && document.getElementById('dateStart')) document.getElementById('dateStart').value = prefs.dateStart;
+                if (prefs.dateEnd && document.getElementById('dateEnd')) document.getElementById('dateEnd').value = prefs.dateEnd;
+                if (prefs.money && document.getElementById('moneyFilter')) document.getElementById('moneyFilter').value = prefs.money;
+                if (prefs.minAmount && document.getElementById('minAmount')) document.getElementById('minAmount').value = prefs.minAmount;
+                if (prefs.maxAmount && document.getElementById('maxAmount')) document.getElementById('maxAmount').value = prefs.maxAmount;
+                if (prefs.recent && document.getElementById('recentFilter')) document.getElementById('recentFilter').value = prefs.recent;
+                if (prefs.sort && document.getElementById('sortFilter')) document.getElementById('sortFilter').value = prefs.sort;
+                if (prefs.status && document.getElementById('statusFilter')) document.getElementById('statusFilter').value = prefs.status;
+                if (prefs.plan && document.getElementById('planFilter')) document.getElementById('planFilter').value = prefs.plan;
+                if (prefs.search && document.getElementById('searchInput')) document.getElementById('searchInput').value = prefs.search;
+            } catch (_) {}
+            toggleCustomInputs();
+        }
+
+        function toggleCustomInputs() {
+            const days = document.getElementById('daysFilter')?.value;
+            const customDaysWrap = document.getElementById('customDaysWrap');
+            if (customDaysWrap) {
+                customDaysWrap.style.display = (days === 'CUSTOM') ? 'flex' : 'none';
+            }
+
+            const money = document.getElementById('moneyFilter')?.value;
+            const customMoneyWrap = document.getElementById('customAmountWrap');
+            if (customMoneyWrap) {
+                customMoneyWrap.style.display = (money === 'CUSTOM_AMOUNT') ? 'flex' : 'none';
+            }
+        }
+
+        function onFilterChange() {
+            toggleCustomInputs();
+            saveFilterPreferences();
+            filterRecords();
+        }
+
+        function resetAllFilters() {
+            if (document.getElementById('daysFilter')) document.getElementById('daysFilter').value = 'LIFETIME';
+            if (document.getElementById('moneyFilter')) document.getElementById('moneyFilter').value = 'ALL';
+            if (document.getElementById('recentFilter')) document.getElementById('recentFilter').value = 'ALL';
+            if (document.getElementById('sortFilter')) document.getElementById('sortFilter').value = 'NEWEST';
+            if (document.getElementById('statusFilter')) document.getElementById('statusFilter').value = 'ALL';
+            if (document.getElementById('planFilter')) document.getElementById('planFilter').value = 'ALL';
+            if (document.getElementById('searchInput')) document.getElementById('searchInput').value = '';
+            if (document.getElementById('dateStart')) document.getElementById('dateStart').value = '';
+            if (document.getElementById('dateEnd')) document.getElementById('dateEnd').value = '';
+            if (document.getElementById('minAmount')) document.getElementById('minAmount').value = '';
+            if (document.getElementById('maxAmount')) document.getElementById('maxAmount').value = '';
+
+            toggleCustomInputs();
+            saveFilterPreferences();
+            filterRecords();
+        }
+
+        function getOrderDate(o) {
+            if (!o) return null;
+            const raw = o.created_at || o.date || o.timestamp || o.updated_at;
+            if (!raw) return null;
+            const d = new Date(raw);
+            return isNaN(d.getTime()) ? null : d;
+        }
+
         async function loadRecords() {
             try {
                 const recordsUrl = resolveBackendEndpoint('/api/records');
@@ -1127,7 +1547,6 @@
                 const raw = await res.text();
                 const data = (raw && raw.trim()) ? JSON.parse(raw) : {};
                 allOrders = data.orders || [];
-                renderMetrics(allOrders);
                 filterRecords();
             } catch (err) {
                 console.error('Error fetching records:', err);
@@ -1144,50 +1563,404 @@
             }
         }
 
-        function renderMetrics(orders) {
-            let successCount = 0;
-            let failedCount = 0;
-            let totalRevenue = 0;
+        function renderMetrics(lifetimeOrders, currentOrders, isFiltered) {
+            let lifetimeRev = 0;
+            let lifetimeSucc = 0;
+            let lifetimeFail = 0;
 
-            orders.forEach(o => {
+            lifetimeOrders.forEach(o => {
                 if (o.status === 'SUCCESS') {
-                    successCount++;
-                    totalRevenue += (Number(o.amount) || 0);
+                    lifetimeSucc++;
+                    lifetimeRev += (Number(o.amount) || 0);
                 } else if (o.status === 'FAILED') {
-                    failedCount++;
+                    lifetimeFail++;
                 }
             });
 
-            document.getElementById('metricSuccess').innerText = successCount;
-            document.getElementById('metricRevenue').innerText = '₹' + totalRevenue.toLocaleString('en-IN');
-            document.getElementById('metricFailed').innerText = failedCount;
-            document.getElementById('metricTotal').innerText = orders.length;
+            // Update Lifetime Banner counters
+            const lifeOrdEl = document.getElementById('lifetimeOrdersCount');
+            if (lifeOrdEl) lifeOrdEl.innerText = lifetimeOrders.length;
+            const lifeRevEl = document.getElementById('lifetimeRevenueTotal');
+            if (lifeRevEl) lifeRevEl.innerText = '₹' + lifetimeRev.toLocaleString('en-IN');
+
+            let succCount = 0;
+            let failCount = 0;
+            let totalRev = 0;
+
+            const listToCount = isFiltered ? currentOrders : lifetimeOrders;
+
+            listToCount.forEach(o => {
+                if (o.status === 'SUCCESS') {
+                    succCount++;
+                    totalRev += (Number(o.amount) || 0);
+                } else if (o.status === 'FAILED') {
+                    failCount++;
+                }
+            });
+
+            document.getElementById('metricRevenue').innerText = '₹' + totalRev.toLocaleString('en-IN');
+            document.getElementById('metricSuccess').innerText = succCount;
+            document.getElementById('metricFailed').innerText = failCount;
+            document.getElementById('metricTotal').innerText = listToCount.length;
+
+            const revSub = document.getElementById('metricRevenueSub');
+            const succSub = document.getElementById('metricSuccessSub');
+            const failSub = document.getElementById('metricFailedSub');
+            const totSub = document.getElementById('metricTotalSub');
+
+            if (isFiltered) {
+                if (revSub) revSub.innerHTML = `Filtered view <span style="color:#02de61">• Lifetime: ₹${lifetimeRev.toLocaleString('en-IN')}</span>`;
+                if (succSub) succSub.innerHTML = `Filtered view <span style="color:#02de61">• Lifetime: ${lifetimeSucc}</span>`;
+                if (failSub) failSub.innerHTML = `Filtered view <span style="color:#ff6b81">• Lifetime: ${lifetimeFail}</span>`;
+                if (totSub) totSub.innerHTML = `Filtered view <span style="color:#02de61">• Lifetime: ${lifetimeOrders.length}</span>`;
+            } else {
+                if (revSub) revSub.innerText = 'Permanent lifetime revenue from verified payments';
+                if (succSub) succSub.innerText = 'All-time verified active VIP members';
+                if (failSub) failSub.innerText = 'All-time incomplete or failed checkouts';
+                if (totSub) totSub.innerText = 'All-time customer checkout interactions permanently saved';
+            }
         }
 
         function filterRecords() {
-            const query = (document.getElementById('searchInput').value || '').trim().toLowerCase();
-            const statusFilter = document.getElementById('statusFilter').value;
-            const planFilter = document.getElementById('planFilter').value;
+            saveFilterPreferences();
+            toggleCustomInputs();
 
-            const filtered = allOrders.filter(o => {
+            const query = (document.getElementById('searchInput')?.value || '').trim().toLowerCase();
+            const statusFilter = document.getElementById('statusFilter')?.value || 'ALL';
+            const planFilter = document.getElementById('planFilter')?.value || 'ALL';
+            const daysFilter = document.getElementById('daysFilter')?.value || 'LIFETIME';
+            const moneyFilter = document.getElementById('moneyFilter')?.value || 'ALL';
+            const recentFilter = document.getElementById('recentFilter')?.value || 'ALL';
+            const sortFilter = document.getElementById('sortFilter')?.value || 'NEWEST';
+
+            const dateStartVal = document.getElementById('dateStart')?.value;
+            const dateEndVal = document.getElementById('dateEnd')?.value;
+            const minAmountVal = parseFloat(document.getElementById('minAmount')?.value);
+            const maxAmountVal = parseFloat(document.getElementById('maxAmount')?.value);
+
+            const now = new Date();
+
+            let filtered = allOrders.filter(o => {
+                // Status Filter
                 if (statusFilter !== 'ALL' && o.status !== statusFilter) return false;
+
+                // Plan Filter
                 if (planFilter !== 'ALL') {
                     const planStr = ((o.plan_name || '') + ' ' + (o.plan || '')).toUpperCase();
                     if (!planStr.includes(planFilter)) return false;
                 }
-                if (!query) return true;
 
-                const name = (o.customer?.name || '').toLowerCase();
-                const email = (o.customer?.email || '').toLowerCase();
-                const phone = (o.customer?.phone || '').toLowerCase();
-                const ordId = (o.order_id || '').toLowerCase();
-                const payId = (o.payment_id || '').toLowerCase();
+                // Money Filter
+                const amount = Number(o.amount) || 0;
+                if (moneyFilter === '399') {
+                    if (Math.round(amount) !== 399) return false;
+                } else if (moneyFilter === '699') {
+                    if (Math.round(amount) !== 699) return false;
+                } else if (moneyFilter === 'UNDER_500') {
+                    if (amount <= 0 || amount >= 500) return false;
+                } else if (moneyFilter === '500_PLUS') {
+                    if (amount < 500) return false;
+                } else if (moneyFilter === 'CUSTOM_AMOUNT') {
+                    if (!isNaN(minAmountVal) && amount < minAmountVal) return false;
+                    if (!isNaN(maxAmountVal) && amount > maxAmountVal) return false;
+                }
 
-                return name.includes(query) || email.includes(query) || phone.includes(query) || ordId.includes(query) || payId.includes(query);
+                // Days Filter
+                const orderDate = getOrderDate(o);
+                if (daysFilter !== 'LIFETIME') {
+                    if (!orderDate) return false;
+                    const diffMs = now.getTime() - orderDate.getTime();
+
+                    if (daysFilter === 'TODAY') {
+                        const isSameDay = orderDate.toDateString() === now.toDateString();
+                        const isWithin24h = diffMs >= 0 && diffMs <= 24 * 3600 * 1000;
+                        if (!isSameDay && !isWithin24h) return false;
+                    } else if (daysFilter === 'YESTERDAY') {
+                        const yDate = new Date(now);
+                        yDate.setDate(yDate.getDate() - 1);
+                        const isYesterdayDay = orderDate.toDateString() === yDate.toDateString();
+                        const isWithinYesterday24h = diffMs > 24 * 3600 * 1000 && diffMs <= 48 * 3600 * 1000;
+                        if (!isYesterdayDay && !isWithinYesterday24h) return false;
+                    } else if (daysFilter === '7_DAYS') {
+                        if (diffMs < 0 || diffMs > 7 * 24 * 3600 * 1000) return false;
+                    } else if (daysFilter === '15_DAYS') {
+                        if (diffMs < 0 || diffMs > 15 * 24 * 3600 * 1000) return false;
+                    } else if (daysFilter === '30_DAYS') {
+                        if (diffMs < 0 || diffMs > 30 * 24 * 3600 * 1000) return false;
+                    } else if (daysFilter === '90_DAYS') {
+                        if (diffMs < 0 || diffMs > 90 * 24 * 3600 * 1000) return false;
+                    } else if (daysFilter === 'THIS_MONTH') {
+                        if (orderDate.getFullYear() !== now.getFullYear() || orderDate.getMonth() !== now.getMonth()) return false;
+                    } else if (daysFilter === 'CUSTOM') {
+                        if (dateStartVal) {
+                            const startMs = new Date(dateStartVal + 'T00:00:00').getTime();
+                            if (!isNaN(startMs) && orderDate.getTime() < startMs) return false;
+                        }
+                        if (dateEndVal) {
+                            const endMs = new Date(dateEndVal + 'T23:59:59.999').getTime();
+                            if (!isNaN(endMs) && orderDate.getTime() > endMs) return false;
+                        }
+                    }
+                }
+
+                // Recent time-window Filter
+                if (recentFilter === 'PAST_1H') {
+                    if (!orderDate) return false;
+                    const diffMs = now.getTime() - orderDate.getTime();
+                    if (diffMs < 0 || diffMs > 1 * 3600 * 1000) return false;
+                } else if (recentFilter === 'PAST_6H') {
+                    if (!orderDate) return false;
+                    const diffMs = now.getTime() - orderDate.getTime();
+                    if (diffMs < 0 || diffMs > 6 * 3600 * 1000) return false;
+                } else if (recentFilter === 'PAST_24H') {
+                    if (!orderDate) return false;
+                    const diffMs = now.getTime() - orderDate.getTime();
+                    if (diffMs < 0 || diffMs > 24 * 3600 * 1000) return false;
+                }
+
+                // Search Query Filter
+                if (query) {
+                    const name = (o.customer?.name || '').toLowerCase();
+                    const email = (o.customer?.email || '').toLowerCase();
+                    const phone = (o.customer?.phone || '').toLowerCase();
+                    const ordId = (o.order_id || '').toLowerCase();
+                    const payId = (o.payment_id || '').toLowerCase();
+                    const amountStr = String(o.amount || '');
+                    const planStr = ((o.plan_name || '') + ' ' + (o.plan || '')).toLowerCase();
+                    const reason = (o.failure_reason || '').toLowerCase();
+
+                    const matches = name.includes(query) ||
+                                    email.includes(query) ||
+                                    phone.includes(query) ||
+                                    ordId.includes(query) ||
+                                    payId.includes(query) ||
+                                    amountStr.includes(query) ||
+                                    planStr.includes(query) ||
+                                    reason.includes(query);
+                    if (!matches) return false;
+                }
+
+                return true;
             });
 
-            document.getElementById('recordCount').innerText = filtered.length;
+            // Sorting
+            filtered.sort((a, b) => {
+                const dateA = getOrderDate(a)?.getTime() || 0;
+                const dateB = getOrderDate(b)?.getTime() || 0;
+                const amtA = Number(a.amount) || 0;
+                const amtB = Number(b.amount) || 0;
+
+                if (sortFilter === 'OLDEST') {
+                    return dateA - dateB;
+                } else if (sortFilter === 'MONEY_DESC') {
+                    return amtB - amtA || dateB - dateA;
+                } else if (sortFilter === 'MONEY_ASC') {
+                    return amtA - amtB || dateB - dateA;
+                } else {
+                    // Default NEWEST
+                    return dateB - dateA;
+                }
+            });
+
+            // Recent count limit
+            if (recentFilter === 'RECENT_10') {
+                filtered = filtered.slice(0, 10);
+            } else if (recentFilter === 'RECENT_25') {
+                filtered = filtered.slice(0, 25);
+            } else if (recentFilter === 'RECENT_50') {
+                filtered = filtered.slice(0, 50);
+            } else if (recentFilter === 'RECENT_100') {
+                filtered = filtered.slice(0, 100);
+            }
+
+            currentFilteredOrders = filtered;
+
+            const isFiltered = daysFilter !== 'LIFETIME' ||
+                               moneyFilter !== 'ALL' ||
+                               recentFilter !== 'ALL' ||
+                               statusFilter !== 'ALL' ||
+                               planFilter !== 'ALL' ||
+                               Boolean(query);
+
+            const badgeEl = document.getElementById('filterActiveBadge');
+            if (badgeEl) badgeEl.style.display = isFiltered ? 'inline-flex' : 'none';
+
+            const recCountEl = document.getElementById('recordCount');
+            if (recCountEl) recCountEl.innerText = filtered.length;
+
+            const lifeCountEl = document.getElementById('lifetimeCount');
+            if (lifeCountEl) lifeCountEl.innerText = allOrders.length;
+
+            renderMetrics(allOrders, filtered, isFiltered);
             renderTable(filtered);
+            renderActiveFilterChips({
+                daysFilter,
+                dateStartVal,
+                dateEndVal,
+                moneyFilter,
+                minAmountVal,
+                maxAmountVal,
+                recentFilter,
+                sortFilter,
+                statusFilter,
+                planFilter,
+                query
+            });
+        }
+
+        function renderActiveFilterChips(filters) {
+            const container = document.getElementById('filterChipsContainer');
+            const list = document.getElementById('filterChipsList');
+            if (!container || !list) return;
+
+            const chips = [];
+
+            if (filters.daysFilter !== 'LIFETIME') {
+                let label = filters.daysFilter;
+                if (filters.daysFilter === 'TODAY') label = 'Today (Last 24h)';
+                else if (filters.daysFilter === 'YESTERDAY') label = 'Yesterday';
+                else if (filters.daysFilter === '7_DAYS') label = 'Last 7 Days';
+                else if (filters.daysFilter === '15_DAYS') label = 'Last 15 Days';
+                else if (filters.daysFilter === '30_DAYS') label = 'Last 30 Days';
+                else if (filters.daysFilter === '90_DAYS') label = 'Last 90 Days';
+                else if (filters.daysFilter === 'THIS_MONTH') label = 'This Month';
+                else if (filters.daysFilter === 'CUSTOM') label = `Custom (${filters.dateStartVal || 'Start'} to ${filters.dateEndVal || 'End'})`;
+
+                chips.push(`
+                    <span class="filter-chip">
+                        <span>Days: <strong>${escapeHtml(label)}</strong></span>
+                        <button type="button" class="filter-chip-remove" onclick="clearSpecificFilter('days')" title="Clear days filter">✕</button>
+                    </span>
+                `);
+            }
+
+            if (filters.moneyFilter !== 'ALL') {
+                let label = filters.moneyFilter;
+                if (filters.moneyFilter === '399') label = '₹399 (VIP)';
+                else if (filters.moneyFilter === '699') label = '₹699 (Prime)';
+                else if (filters.moneyFilter === 'UNDER_500') label = '< ₹500';
+                else if (filters.moneyFilter === '500_PLUS') label = '≥ ₹500';
+                else if (filters.moneyFilter === 'CUSTOM_AMOUNT') label = `₹${filters.minAmountVal || 0} - ₹${filters.maxAmountVal || '∞'}`;
+
+                chips.push(`
+                    <span class="filter-chip">
+                        <span>Money: <strong>${escapeHtml(label)}</strong></span>
+                        <button type="button" class="filter-chip-remove" onclick="clearSpecificFilter('money')" title="Clear money filter">✕</button>
+                    </span>
+                `);
+            }
+
+            if (filters.recentFilter !== 'ALL') {
+                let label = filters.recentFilter;
+                if (filters.recentFilter === 'RECENT_10') label = 'Recent 10';
+                else if (filters.recentFilter === 'RECENT_25') label = 'Recent 25';
+                else if (filters.recentFilter === 'RECENT_50') label = 'Recent 50';
+                else if (filters.recentFilter === 'RECENT_100') label = 'Recent 100';
+                else if (filters.recentFilter === 'PAST_1H') label = 'Past 1 Hour';
+                else if (filters.recentFilter === 'PAST_6H') label = 'Past 6 Hours';
+                else if (filters.recentFilter === 'PAST_24H') label = 'Past 24 Hours';
+
+                chips.push(`
+                    <span class="filter-chip">
+                        <span>Recent: <strong>${escapeHtml(label)}</strong></span>
+                        <button type="button" class="filter-chip-remove" onclick="clearSpecificFilter('recent')" title="Clear recent filter">✕</button>
+                    </span>
+                `);
+            }
+
+            if (filters.statusFilter !== 'ALL') {
+                chips.push(`
+                    <span class="filter-chip">
+                        <span>Status: <strong>${escapeHtml(filters.statusFilter)}</strong></span>
+                        <button type="button" class="filter-chip-remove" onclick="clearSpecificFilter('status')" title="Clear status filter">✕</button>
+                    </span>
+                `);
+            }
+
+            if (filters.planFilter !== 'ALL') {
+                chips.push(`
+                    <span class="filter-chip">
+                        <span>Plan: <strong>${escapeHtml(filters.planFilter)}</strong></span>
+                        <button type="button" class="filter-chip-remove" onclick="clearSpecificFilter('plan')" title="Clear plan filter">✕</button>
+                    </span>
+                `);
+            }
+
+            if (filters.query) {
+                chips.push(`
+                    <span class="filter-chip">
+                        <span>Search: <strong>"${escapeHtml(filters.query)}"</strong></span>
+                        <button type="button" class="filter-chip-remove" onclick="clearSpecificFilter('search')" title="Clear search">✕</button>
+                    </span>
+                `);
+            }
+
+            if (chips.length > 0) {
+                list.innerHTML = chips.join('');
+                container.style.display = 'flex';
+            } else {
+                list.innerHTML = '';
+                container.style.display = 'none';
+            }
+        }
+
+        function clearSpecificFilter(type) {
+            if (type === 'days') {
+                if (document.getElementById('daysFilter')) document.getElementById('daysFilter').value = 'LIFETIME';
+                if (document.getElementById('dateStart')) document.getElementById('dateStart').value = '';
+                if (document.getElementById('dateEnd')) document.getElementById('dateEnd').value = '';
+            } else if (type === 'money') {
+                if (document.getElementById('moneyFilter')) document.getElementById('moneyFilter').value = 'ALL';
+                if (document.getElementById('minAmount')) document.getElementById('minAmount').value = '';
+                if (document.getElementById('maxAmount')) document.getElementById('maxAmount').value = '';
+            } else if (type === 'recent') {
+                if (document.getElementById('recentFilter')) document.getElementById('recentFilter').value = 'ALL';
+            } else if (type === 'status') {
+                if (document.getElementById('statusFilter')) document.getElementById('statusFilter').value = 'ALL';
+            } else if (type === 'plan') {
+                if (document.getElementById('planFilter')) document.getElementById('planFilter').value = 'ALL';
+            } else if (type === 'search') {
+                if (document.getElementById('searchInput')) document.getElementById('searchInput').value = '';
+            }
+            onFilterChange();
+        }
+
+        function escapeCsv(val) {
+            if (val === null || val === undefined) return '""';
+            const str = String(val).replace(/"/g, '""');
+            return `"${str}"`;
+        }
+
+        function downloadFilteredCsv() {
+            if (!currentFilteredOrders || currentFilteredOrders.length === 0) {
+                alert('No matching customer records to export for the current filter.');
+                return;
+            }
+            const header = 'Date,Status,Order ID,Payment ID,Customer Name,Email,Phone,Plan,Amount (INR),Failure Reason\n';
+            const rows = currentFilteredOrders.map(o => {
+                const date = o.created_at ? new Date(o.created_at).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) : '';
+                return [
+                    escapeCsv(date),
+                    escapeCsv(o.status || 'UNKNOWN'),
+                    escapeCsv(o.order_id || ''),
+                    escapeCsv(o.payment_id || ''),
+                    escapeCsv(o.customer?.name || ''),
+                    escapeCsv(o.customer?.email || ''),
+                    escapeCsv(o.customer?.phone || ''),
+                    escapeCsv(o.plan_name || o.plan || ''),
+                    escapeCsv(o.amount || 0),
+                    escapeCsv(o.failure_reason || '')
+                ].join(',');
+            });
+            const blob = new Blob([header + rows.join('\n') + '\n'], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `bsl_filtered_records_${new Date().toISOString().slice(0, 10)}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
         }
 
         function renderTable(orders) {
