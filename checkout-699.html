@@ -13,6 +13,58 @@
     <link rel="icon" href="assets/images/yrrabLBv0i13BdICerAzJbPj6Y.png">
     <link rel="stylesheet" href="https://use.typekit.net/orz7flp.css">
     <link rel="stylesheet" href="css/checkout.css">
+    <!-- Meta Pixel Code -->
+    <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '2187804648437152');
+    fbq('track', 'PageView');
+
+    /* Meta Pixel - Client-side Route Change (SPA) Tracking: Avoids duplicate events */
+    (function() {
+      if (typeof window === 'undefined' || window.__metaPixelSpaInitialized) return;
+      window.__metaPixelSpaInitialized = true;
+      var lastUrl = window.location.href;
+      function trackRoutePageView() {
+        var curUrl = window.location.href;
+        if (curUrl !== lastUrl) {
+          lastUrl = curUrl;
+          if (typeof window.fbq === 'function') {
+            window.fbq('track', 'PageView');
+          }
+        }
+      }
+      var origPushState = window.history.pushState;
+      if (typeof origPushState === 'function') {
+        window.history.pushState = function() {
+          var res = origPushState.apply(this, arguments);
+          try { trackRoutePageView(); } catch (e) {}
+          return res;
+        };
+      }
+      var origReplaceState = window.history.replaceState;
+      if (typeof origReplaceState === 'function') {
+        window.history.replaceState = function() {
+          var res = origReplaceState.apply(this, arguments);
+          try { trackRoutePageView(); } catch (e) {}
+          return res;
+        };
+      }
+      window.addEventListener('popstate', function() {
+        try { trackRoutePageView(); } catch (e) {}
+      });
+    })();
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=2187804648437152&ev=PageView&noscript=1"
+    /></noscript>
+    <!-- End Meta Pixel Code -->
     <!-- Razorpay Standard Checkout SDK -->
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <!-- Backend Configuration: Inline fallback ensures window.getApiUrl is immediately available -->
@@ -1899,6 +1951,24 @@
                 // Payment verified successfully!
                 clearPaymentMessage();
                 setPayButtonLoading(false);
+
+                // Meta Pixel Purchase Event - Triggered strictly after server-side payment verification
+                if (typeof window.fbq === 'function') {
+                    try {
+                        const verifiedPlan = (plans && plans[currentPlan]) || { priceNum: 699, name: 'PRIME PLAN' };
+                        window.fbq('track', 'Purchase', {
+                            value: Number(verifiedPlan.priceNum) || 699,
+                            currency: 'INR',
+                            content_name: verifiedPlan.name || 'PRIME PLAN',
+                            content_type: 'product',
+                            content_ids: [currentPlan || 'elite'],
+                            num_items: 1,
+                            order_id: paymentResponse.razorpay_order_id
+                        });
+                    } catch (pixelErr) {
+                        console.warn('Meta Pixel Purchase tracking error:', pixelErr);
+                    }
+                }
 
                 // Populate success modal
                 const dispCust = document.getElementById('displaySuccessCustomer');
