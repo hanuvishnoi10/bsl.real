@@ -590,13 +590,56 @@ const server = http.createServer(async (req, res) => {
             return;
         }
 
-        const orders = recordsManager.getAllOrders();
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({
-            success: true,
-            count: orders.length,
-            orders: orders
-        }));
+        const forceSync = parsedUrl.searchParams.get('sync') === '1' || parsedUrl.searchParams.get('force') === '1';
+        recordsManager.getOrSyncAllOrders(forceSync).then(orders => {
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({
+                success: true,
+                count: orders.length,
+                lastSync: recordsManager.getLastSyncTime(),
+                orders: orders
+            }));
+        }).catch(err => {
+            console.error('[Records Sync Error]:', err.message);
+            const orders = recordsManager.getAllOrders();
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({
+                success: true,
+                count: orders.length,
+                orders: orders
+            }));
+        });
+        return;
+    }
+
+    // 8b. POST /api/admin/sync-razorpay (Protected: Force Cloud Synchronization)
+    if (req.method === 'POST' && pathname === '/api/admin/sync-razorpay') {
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+        if (!isUserAuthenticated(req)) {
+            res.writeHead(401, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({
+                success: false,
+                error: 'Unauthorized: Admin authentication required'
+            }));
+            return;
+        }
+
+        recordsManager.syncWithRazorpay(getRazorpayInstance()).then(orders => {
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({
+                success: true,
+                count: orders.length,
+                lastSync: recordsManager.getLastSyncTime(),
+                orders: orders,
+                message: `Successfully synchronized ${orders.length} orders with Razorpay Cloud.`
+            }));
+        }).catch(err => {
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({
+                success: false,
+                error: err.message || 'Failed to sync with Razorpay Cloud'
+            }));
+        });
         return;
     }
 
@@ -711,4 +754,11 @@ server.listen(PORT, () => {
     console.log(`💳 Razorpay Key ID:      ${keyId ? 'Loaded (' + keyId.substring(0, 12) + '...) [' + mode + ']' : 'MISSING'}`);
     console.log(`📁 Records Storage:     ./data/orders.json & ./data/orders.csv`);
     console.log(`======================================================\n`);
+
+    // Trigger automatic non-blocking cloud reconciliation on startup
+    recordsManager.syncWithRazorpay(getRazorpayInstance()).then(orders => {
+        console.log(`[Startup Cloud Sync]: Reconciled & preserved ${orders.length} lifetime customer records.`);
+    }).catch(err => {
+        console.warn('[Startup Cloud Sync Warning]:', err.message);
+    });
 });

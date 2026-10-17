@@ -911,6 +911,10 @@
                     </span>
                 </div>
                 <div class="lifetime-actions">
+                    <button type="button" class="btn-chip" id="syncCloudBtn" onclick="triggerRazorpayCloudSync()" title="Synchronize live orders directly with Razorpay Cloud">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#00d2d3" stroke-width="2.5"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
+                        <span id="syncCloudBtnText">Sync Razorpay Cloud</span>
+                    </button>
                     <button type="button" class="btn-chip" onclick="resetAllFilters()" title="Reset all filters to show all-time lifetime data">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
                         <span>Lifetime View</span>
@@ -967,6 +971,10 @@
                         <input type="text" id="searchInput" placeholder="Search by name, email, phone, Order ID, Payment ID, amount..." oninput="onFilterChange()">
                     </div>
                     <div class="controls-actions">
+                        <button type="button" class="btn btn-outline btn-sm" onclick="triggerRazorpayCloudSync()" title="Pull latest live orders from Razorpay Cloud">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#00d2d3" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
+                            <span>Sync Razorpay</span>
+                        </button>
                         <button type="button" class="btn btn-outline btn-sm" onclick="downloadFilteredCsv()" title="Export current filtered view to CSV">
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                             <span>Export Filtered CSV</span>
@@ -1135,6 +1143,7 @@
         const AUTH_TOKEN_KEY = 'bsl_skyshot_token';
         const AUTH_USER_KEY = 'bsl_skyshot_user';
         const SAVED_FILTERS_KEY = 'bsl_skyshot_saved_filters';
+        const LIFETIME_BACKUP_KEY = 'bsl_skyshot_lifetime_orders_backup';
 
         function getStoredToken() {
             try {
@@ -1469,7 +1478,13 @@
                 const raw = localStorage.getItem(SAVED_FILTERS_KEY);
                 if (!raw) return;
                 const prefs = JSON.parse(raw);
-                if (prefs.days && document.getElementById('daysFilter')) document.getElementById('daysFilter').value = prefs.days;
+                // Relative date filters (TODAY / YESTERDAY) should NEVER stick across different days
+                // Default view is always LIFETIME so yesterday's and past records are never accidentally hidden!
+                if (prefs.days && prefs.days !== 'TODAY' && prefs.days !== 'YESTERDAY' && document.getElementById('daysFilter')) {
+                    document.getElementById('daysFilter').value = prefs.days;
+                } else if (document.getElementById('daysFilter')) {
+                    document.getElementById('daysFilter').value = 'LIFETIME';
+                }
                 if (prefs.dateStart && document.getElementById('dateStart')) document.getElementById('dateStart').value = prefs.dateStart;
                 if (prefs.dateEnd && document.getElementById('dateEnd')) document.getElementById('dateEnd').value = prefs.dateEnd;
                 if (prefs.money && document.getElementById('moneyFilter')) document.getElementById('moneyFilter').value = prefs.money;
@@ -1530,9 +1545,48 @@
             return isNaN(d.getTime()) ? null : d;
         }
 
-        async function loadRecords() {
+        async function triggerRazorpayCloudSync() {
+            const syncBtn = document.getElementById('syncCloudBtn');
+            const syncText = document.getElementById('syncCloudBtnText');
+            if (syncBtn) syncBtn.disabled = true;
+            if (syncText) syncText.innerText = 'Syncing...';
+
             try {
-                const recordsUrl = resolveBackendEndpoint('/api/records');
+                const syncUrl = resolveBackendEndpoint('/api/admin/sync-razorpay');
+                const res = await fetch(syncUrl, {
+                    method: 'POST',
+                    headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
+                    credentials: 'include'
+                });
+                if (res.status === 401) {
+                    clearStoredToken();
+                    showLoginGate();
+                    return;
+                }
+                const data = await res.json();
+                if (data.success && Array.isArray(data.orders)) {
+                    allOrders = data.orders;
+                    try {
+                        localStorage.setItem(LIFETIME_BACKUP_KEY, JSON.stringify(allOrders));
+                    } catch (_) {}
+                    filterRecords();
+                    alert(`✅ Razorpay Cloud Sync Complete!\nTotal ${allOrders.length} customer records permanently preserved.`);
+                } else {
+                    throw new Error(data.error || 'Cloud sync failed');
+                }
+            } catch (err) {
+                console.warn('Sync endpoint notice, pulling via standard sync param:', err);
+                await loadRecords(true);
+            } finally {
+                if (syncBtn) syncBtn.disabled = false;
+                if (syncText) syncText.innerText = 'Sync Razorpay Cloud';
+            }
+        }
+
+        async function loadRecords(forceSync = false) {
+            try {
+                const queryParam = forceSync ? '?sync=1' : '';
+                const recordsUrl = resolveBackendEndpoint('/api/records' + queryParam);
                 const res = await fetch(recordsUrl, {
                     headers: getAuthHeaders(),
                     credentials: 'include'
@@ -1546,10 +1600,45 @@
                 if (!res.ok) throw new Error('Failed to fetch records (status ' + res.status + ')');
                 const raw = await res.text();
                 const data = (raw && raw.trim()) ? JSON.parse(raw) : {};
-                allOrders = data.orders || [];
+                let fetchedOrders = data.orders || [];
+
+                // Secondary client-side preservation: Merge with localStorage backup
+                try {
+                    const cachedRaw = localStorage.getItem(LIFETIME_BACKUP_KEY);
+                    if (cachedRaw) {
+                        const cached = JSON.parse(cachedRaw);
+                        if (Array.isArray(cached) && cached.length > 0) {
+                            const orderMap = new Map();
+                            cached.forEach(o => { if (o && o.order_id) orderMap.set(o.order_id, o); });
+                            fetchedOrders.forEach(o => { if (o && o.order_id) orderMap.set(o.order_id, o); });
+                            fetchedOrders = Array.from(orderMap.values());
+                            fetchedOrders.sort((a, b) => (getOrderDate(b)?.getTime() || 0) - (getOrderDate(a)?.getTime() || 0));
+                        }
+                    }
+                    if (fetchedOrders.length > 0) {
+                        localStorage.setItem(LIFETIME_BACKUP_KEY, JSON.stringify(fetchedOrders));
+                    }
+                } catch (cacheErr) {
+                    console.warn('Backup cache error:', cacheErr);
+                }
+
+                allOrders = fetchedOrders;
                 filterRecords();
             } catch (err) {
                 console.error('Error fetching records:', err);
+                // Attempt to load from localStorage backup if network failed
+                try {
+                    const cachedRaw = localStorage.getItem(LIFETIME_BACKUP_KEY);
+                    if (cachedRaw) {
+                        const cached = JSON.parse(cachedRaw);
+                        if (Array.isArray(cached) && cached.length > 0) {
+                            allOrders = cached;
+                            filterRecords();
+                            return;
+                        }
+                    }
+                } catch (_) {}
+
                 document.getElementById('recordsBody').innerHTML = `
                     <tr>
                         <td colspan="8">

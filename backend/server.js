@@ -582,7 +582,7 @@ app.get('/api/admin/check-session', (req, res) => {
     });
 });
 
-app.get('/api/records', (req, res) => {
+app.get('/api/records', async (req, res) => {
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
     if (!isUserAuthenticated(req)) {
         return res.status(401).json({
@@ -591,12 +591,52 @@ app.get('/api/records', (req, res) => {
         });
     }
 
-    const orders = recordsManager.getAllOrders();
-    return res.status(200).json({
-        success: true,
-        count: orders.length,
-        orders: orders
-    });
+    try {
+        const forceSync = req.query.sync === '1' || req.query.force === '1';
+        const orders = await recordsManager.getOrSyncAllOrders(forceSync);
+        return res.status(200).json({
+            success: true,
+            count: orders.length,
+            lastSync: recordsManager.getLastSyncTime(),
+            orders: orders
+        });
+    } catch (err) {
+        console.error('[Get Records Error]:', err.message);
+        const orders = recordsManager.getAllOrders();
+        return res.status(200).json({
+            success: true,
+            count: orders.length,
+            orders: orders
+        });
+    }
+});
+
+app.post('/api/admin/sync-razorpay', async (req, res) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    if (!isUserAuthenticated(req)) {
+        return res.status(401).json({
+            success: false,
+            error: 'Unauthorized: Admin authentication required'
+        });
+    }
+
+    try {
+        const razorpay = getRazorpayInstance();
+        const orders = await recordsManager.syncWithRazorpay(razorpay);
+        return res.status(200).json({
+            success: true,
+            count: orders.length,
+            lastSync: recordsManager.getLastSyncTime(),
+            orders: orders,
+            message: `Successfully synchronized ${orders.length} orders with Razorpay Cloud.`
+        });
+    } catch (err) {
+        console.error('[Admin Sync Error]:', err);
+        return res.status(500).json({
+            success: false,
+            error: err.message || 'Failed to sync with Razorpay Cloud'
+        });
+    }
 });
 
 app.get('/api/export-csv', (req, res) => {
@@ -648,6 +688,13 @@ if (require.main === module) {
         console.log(`👉 Razorpay Status:      ${isConfigured ? 'LOADED (' + key_id.substring(0, 10) + '...) [' + mode.toUpperCase() + ']' : 'NOT CONFIGURED ⚠️'}`);
         console.log(`👉 CORS Allowed Origin:  ${configuredCorsOrigin}`);
         console.log(`======================================================\n`);
+
+        // Trigger automatic non-blocking cloud reconciliation on startup
+        recordsManager.syncWithRazorpay(getRazorpayInstance()).then(orders => {
+            console.log(`[Startup Cloud Sync]: Reconciled & preserved ${orders.length} lifetime customer records.`);
+        }).catch(err => {
+            console.warn('[Startup Cloud Sync Warning]:', err.message);
+        });
     });
 }
 
