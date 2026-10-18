@@ -9,7 +9,7 @@
     const INJECTED_BACKEND_URL = '';
 
     // Production backend URL for Render Web Service
-    const DEFAULT_BACKEND_URL = 'https://bsl-real2.onrender.com';
+    const DEFAULT_BACKEND_URL = 'https://bsl-real-backend.onrender.com';
 
     // Local development backend URL
     const LOCAL_DEV_URL = 'http://localhost:5000';
